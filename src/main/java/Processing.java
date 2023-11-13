@@ -17,7 +17,10 @@ public class Processing {
             //System.in.read();
         }*/
 
-        Integer[][] arr = images.test6_4;
+        // Ошибка в центрировании 9_2
+        // Образы для увеличения: 2_1, 8_1, 9_1
+        // Образы для уменьшения: 2_3, 8_4, 9_2
+        Integer[][] arr = images.test2_1;
         printImg(arr);
         arr = translation(arr);
         arr = scaling(arr);
@@ -90,8 +93,10 @@ public class Processing {
     public static Integer[][] scaling(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
+        System.out.println("allPixels: " + matrixSizeX*matrixSizeY);
 
         Integer pixelCount = pixelCount(img);
+        System.out.println("pixelCount: " + pixelCount);
 
         Double avgDistance = 0.0; // Среднее расстояние
 
@@ -101,12 +106,22 @@ public class Processing {
                     avgDistance = avgDistance + img[i][j]*Math.sqrt((i+1)*(i+1) + (j+1)*(j+1));
         avgDistance /= pixelCount;
 
-        System.out.println(avgDistance);
+        System.out.println("avg: " + avgDistance);
 
         // Вычисление размера кадра образа
-        Double frameSizePart = Math.sqrt(matrixSizeX*matrixSizeX+matrixSizeY*matrixSizeY+pixelCount*pixelCount)/4.0;
-        Double scalingCoef = avgDistance/frameSizePart;
-        System.out.println(scalingCoef);
+        //Double frameSizePart = Math.sqrt(matrixSizeX*matrixSizeX+matrixSizeY*matrixSizeY+pixelCount*pixelCount)/4.0;
+        Double frameSizePart = Math.sqrt(matrixSizeX*matrixSizeX+matrixSizeY*matrixSizeY);
+        // Для увеличения образа
+        //Double scalingCoef = frameSizePart/avgDistance;
+        // Для уменьшения образа
+        //Double scalingCoef = avgDistance/frameSizePart;
+        // !!! Условие на основе предположения об уменьшении или увеличении
+        Double scalingCoef = 0.0;
+        if(avgDistance>pixelCount)
+            scalingCoef = frameSizePart/avgDistance;
+        else if(avgDistance<pixelCount)
+            scalingCoef = avgDistance/frameSizePart;
+        System.out.println("scalingCoef: " + scalingCoef);
 
         Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
         for(Integer[] row: resultingMatrix)
@@ -141,10 +156,22 @@ public class Processing {
             for(int y=0; y<matrixSizeY; y++)
                 for(int x=0; x<matrixSizeX; x++) {
                     if(img[y][x] != 0) {
-                        int xm = Math.abs((int) Math.round(matrixSizeX/2.0 - x*scalingCoef));
-                        int ym = Math.abs((int) Math.round(matrixSizeY/2.0 - y*scalingCoef));
-                        //int xm = (int) Math.round(x*scalingCoef);
-                        //int ym = (int) Math.round(y*scalingCoef);
+                        // Для увеличения образа
+                        //int xm = Math.abs((int) Math.round(matrixSizeX/2.0 - x*scalingCoef));
+                        //int ym = Math.abs((int) Math.round(matrixSizeY/2.0 - y*scalingCoef));
+                        // Для уменьшения образа
+                        //int xm = Math.abs((int) Math.round(x*scalingCoef));
+                        //int ym = Math.abs((int) Math.round(y*scalingCoef));
+                        // !!! Условие на основе предположения об уменьшении или увеличении
+                        int xm = 0, ym = 0;
+                        if(avgDistance>pixelCount) {
+                            xm = Math.abs((int) Math.round(matrixSizeX/2.0 - x*scalingCoef));
+                            ym = Math.abs((int) Math.round(matrixSizeY/2.0 - y*scalingCoef));
+                        }
+                        else if(avgDistance<pixelCount) {
+                            xm = Math.abs((int) Math.round(x*scalingCoef));
+                            ym = Math.abs((int) Math.round(y*scalingCoef));
+                        }
                         resultingMatrix[ym][xm] = 1;
                     }
                 }
