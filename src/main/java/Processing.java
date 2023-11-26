@@ -1,5 +1,8 @@
 import java.io.IOException;
 import java.util.Arrays;
+import java.io.File;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 public class Processing {
 
@@ -20,11 +23,70 @@ public class Processing {
         // Ошибка в центрировании 9_2
         // Образы для увеличения: 2_1, 8_1, 9_1
         // Образы для уменьшения: 2_3, 8_4, 9_2
-        Integer[][] arr = images.test2_1;
-        printImg(arr);
-        arr = translation(arr);
-        arr = scaling(arr);
-        arr = fillGaps(arr);
+        //preprocImg(images.test2_1);
+
+        preprocImg("\\A\\A1.png");
+        //preprocImg("\\Result.png");
+    }
+
+    // Работа с образом в виде изображения
+    public static void preprocImg(String imgName) throws IOException {
+        File file = new File(images.path+imgName);
+        Integer[][] img = readAndConvertImageToArray(file);
+        img = translation(img);
+        img = scaling(img);
+        img = fillGaps(img);
+        convertArrayToImageAndWrite(img, "Result.png");
+    }
+
+    // Работа с образом в виде двумерного массива
+    public static void preprocImg(Integer[][] imgName) {
+        printImg(imgName);
+        imgName = translation(imgName);
+        imgName = scaling(imgName);
+        imgName = fillGaps(imgName);
+    }
+
+    // Чтение изображения из файла
+    // Преобразование изображения в двумерный целочисленный массив со значениями элементов:
+    // 0 - белый пиксель, 1 - чёрный пиксель (изначально -1 - белый, 0 - чёрный)
+    // Возвращает преобразованный двумерный массив
+    public static Integer[][] readAndConvertImageToArray(File file) {
+        try {
+            BufferedImage image = ImageIO.read(file);
+            int height = image.getHeight();
+            int width = image.getWidth();
+            Integer[][] imgData = new Integer[height][width];
+            for(int i=0; i<height*width; i++) {
+                int elem = image.getRGB(i/height, i%height);
+                if (elem == -1)
+                    imgData[i%height][i/height] = 0;
+                else
+                    imgData[i%height][i/height] = 1;
+            }
+            return imgData;
+        } catch (IOException e) {
+            System.out.println("Изображение не найдено");
+            Integer[][] imgData = new Integer[0][0];
+            return imgData;
+        }
+    }
+
+    // Преобразование двумерного целочисленного массива в изображение с расширением .png
+    // со значениями пикселей: -1 - белый пиксель, 0 - чёрный пиксель
+    // Запись полученного изображения в директорию с изображениями с заданным именем
+    public static void convertArrayToImageAndWrite(Integer[][] img, String name) throws IOException {
+        BufferedImage newImage = new BufferedImage(img[0].length, img.length, BufferedImage.TYPE_INT_RGB);
+        for(int i=0; i<img.length; i++){
+            for (int j=0; j<img[0].length; j++){
+                if(img[i][j] == 0)
+                    newImage.setRGB(j, i,-1);
+                else
+                    newImage.setRGB(j, i, 0);
+            }
+        }
+        File output = new File(images.path+name);
+        ImageIO.write(newImage, "png", output);
     }
 
     // Вывод образа
@@ -126,31 +188,6 @@ public class Processing {
         Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
         for(Integer[] row: resultingMatrix)
             Arrays.fill(row, 0);
-        // Что-то не то, что-то не так
-//        for(int y=0; y<matrixSizeY; y++)
-//            for(int x=0; x<matrixSizeX; x++) {
-//                if(img[y][x] != 0) {
-//                    int xm = x + 1;
-//                    int ym = matrixSizeY - y;
-//                    System.out.println(xm + " " + ym + " = ...");
-//                    if (xm >= matrixSizeX / 2 && ym >= matrixSizeY / 2) {
-//                        ym = /*matrixSizeY - */(int) Math.round(ym * scalingCoef);
-//                        xm = (int) Math.round(xm * scalingCoef);// - 1;
-//                    }
-//                    else if (xm < matrixSizeX / 2 && ym > matrixSizeY / 2) {
-//                        ym = /*matrixSizeY - */(int) Math.round(ym * scalingCoef);
-//                        xm = (int) Math.round(xm / scalingCoef);// - 1;
-//                    }
-//                    else if (xm <= matrixSizeX / 2 && ym <= matrixSizeY / 2) {
-//                        ym = /*matrixSizeY - */(int) Math.round(ym / scalingCoef);
-//                        xm = (int) Math.round(xm / scalingCoef);// - 1;
-//                    }
-//                    else if (x > matrixSizeX / 2 && y < matrixSizeY / 2) {
-//                        ym = /*matrixSizeY - */(int) Math.round(ym / scalingCoef);
-//                        xm = (int) Math.round(xm * scalingCoef);// - 1;
-//                    }
-//                }
-//            }
         // Возможное решение невозможности масштабирования образа
         try {
             for(int y=0; y<matrixSizeY; y++)
@@ -179,12 +216,6 @@ public class Processing {
             System.out.println("Данный образ нельзя масштабировать");
             resultingMatrix = img;
         }
-
-//        for(int i=0; i<matrixSizeY; i++)
-//            for(int j=0; j<matrixSizeX; j++)
-//                if(img[i][j] != 0)
-//                    resultingMatrix[(int) ((int) Math.round(scalingCoef*i)-(Math.round(scalingCoef)))]
-//                                   [(int) ((int) Math.round(scalingCoef*j)-(Math.round(scalingCoef)))] = 1;
 
         printImg(resultingMatrix);
 
