@@ -23,9 +23,9 @@ public class Processing {
         // Ошибка в центрировании 9_2
         // Образы для увеличения: 2_1, 8_1, 9_1
         // Образы для уменьшения: 2_3, 8_4, 9_2
-        //preprocImg(images.test2_1);
+        preprocImg(images.test8_5);
 
-        preprocImg("\\A\\A1.png");
+        //preprocImg("\\rotA.png");
         //preprocImg("\\Result.png");
     }
 
@@ -34,8 +34,9 @@ public class Processing {
         File file = new File(images.path+imgName);
         Integer[][] img = readAndConvertImageToArray(file);
         img = translation(img);
-        img = scaling(img);
-        img = fillGaps(img);
+        //img = scaling(img);
+        //img = fillGaps(img);
+        rotation(img);
         convertArrayToImageAndWrite(img, "Result.png");
     }
 
@@ -43,8 +44,9 @@ public class Processing {
     public static void preprocImg(Integer[][] imgName) {
         printImg(imgName);
         imgName = translation(imgName);
-        imgName = scaling(imgName);
-        imgName = fillGaps(imgName);
+        //imgName = scaling(imgName);
+        //imgName = fillGaps(imgName);
+        rotation(imgName);
     }
 
     // Чтение изображения из файла
@@ -117,15 +119,18 @@ public class Processing {
     public static Integer[][] translation(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
+        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
+        for(Integer[] row: resultingMatrix)
+            Arrays.fill(row, 0);
 
         Integer pixelCount = pixelCount(img);
 
         Integer shiftX = 0; // Сдвиг по оси X
         Integer shiftY = 0; // Сдвиг по оси Y
-        for(int i=0; i<matrixSizeY; i++)
-            for(int j=0; j<matrixSizeX; j++) {
-                shiftX = shiftX + (j+1)*img[i][j];
-                shiftY = shiftY + (i+1)*img[i][j];
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                shiftX = shiftX + (x+1)*img[y][x];
+                shiftY = shiftY + (y+1)*img[y][x];
             }
 
         shiftX = Math.round((float)(matrixSizeX/2.0) - (float)(shiftX/pixelCount));
@@ -137,14 +142,10 @@ public class Processing {
         if(shiftY<=0)
             shiftY+=1;*/
 
-        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
-        for(Integer[] row: resultingMatrix)
-            Arrays.fill(row, 0);
-
-        for(int i=0; i<matrixSizeY; i++)
-            for(int j=0; j<matrixSizeX; j++)
-                if(img[i][j] != 0)
-                    resultingMatrix[i+shiftY][j+shiftX] = 1;
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++)
+                if(img[y][x] != 0)
+                    resultingMatrix[y+shiftY][x+shiftX] = 1;
 
         printImg(resultingMatrix);
 
@@ -155,6 +156,10 @@ public class Processing {
     public static Integer[][] scaling(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
+        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
+        for(Integer[] row: resultingMatrix)
+            Arrays.fill(row, 0);
+
         System.out.println("allPixels: " + matrixSizeX*matrixSizeY);
 
         Integer pixelCount = pixelCount(img);
@@ -162,10 +167,10 @@ public class Processing {
 
         Double avgDistance = 0.0; // Среднее расстояние
 
-        for(int i=0; i<matrixSizeY; i++)
-            for(int j=0; j<matrixSizeX; j++)
-                if(img[i][j] != 0)
-                    avgDistance = avgDistance + img[i][j]*Math.sqrt((i+1)*(i+1) + (j+1)*(j+1));
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++)
+                if(img[y][x] != 0)
+                    avgDistance = avgDistance + img[y][x]*Math.sqrt((y+1)*(y+1) + (x+1)*(x+1));
         avgDistance /= pixelCount;
 
         System.out.println("avg: " + avgDistance);
@@ -185,9 +190,6 @@ public class Processing {
             scalingCoef = avgDistance/frameSizePart;
         System.out.println("scalingCoef: " + scalingCoef);
 
-        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
-        for(Integer[] row: resultingMatrix)
-            Arrays.fill(row, 0);
         // Возможное решение невозможности масштабирования образа
         try {
             for(int y=0; y<matrixSizeY; y++)
@@ -254,5 +256,62 @@ public class Processing {
         System.out.println();
         printImg(img);
         return img;
+    }
+
+    // Поворот образа
+    public static Integer[][] rotation(Integer[][] img) {
+        Integer matrixSizeY = img.length;
+        Integer matrixSizeX = img[0].length;
+        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
+        for(Integer[] row: resultingMatrix)
+            Arrays.fill(row, 0);
+
+        Integer pixelCount = pixelCount(img);
+        Integer txx = 0;
+        Integer tyy = 0;
+        Integer txy = 0;
+        for(int y=0; y<matrixSizeY; y++) {
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    txx += img[y][x]*(x+1)*(x+1);
+                    tyy += img[y][x]*(y+1)*(y+1);
+                    txy += img[y][x]*(x+1)*(y+1);
+                }
+            }
+        }
+        System.out.println("Txx = " + txx);
+        System.out.println("Tyy = " + tyy);
+        System.out.println("Txy = " + txy);
+        /*Double bigM = Math.sqrt(8*txy*txy + 2*Math.pow(tyy-txx, 2) + 2*(tyy-txx) *
+                                 Math.sqrt(Math.pow(tyy-txx, 2)) + 4*txy*txy);*/
+        Double bigM = Math.sqrt(2 * (Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy) + (tyy-txx)) *
+                                Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy));
+        System.out.println("M = " + bigM);
+        //Double sinTeta = (tyy - txx + Math.sqrt(Math.pow(tyy-txx, 2)) + 4*txy*txy)/bigM;
+        //Double cosTeta = (2*tyy)/bigM;
+        Double sinTeta = ((tyy-txx) + Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy))/bigM;
+        Double cosTeta = (2*txy)/bigM;
+        System.out.println("sin = " + Math.sin(sinTeta));
+        System.out.println("cos = " + Math.cos(cosTeta));
+        //sinTeta = Math.sin(sinTeta);
+        //cosTeta = Math.cos(cosTeta);
+        for(int y=0; y<matrixSizeY; y++) {
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    //Double newX = x*cosTeta - y*sinTeta;
+                    //Double newY = x*sinTeta + y*cosTeta;
+                    //Double newX = cosTeta*x + sinTeta*y;
+                    //Double newY = -sinTeta*x + cosTeta*y;
+                    int newX = Math.abs((int)Math.round(matrixSizeX/2.0 - (cosTeta*x +
+                            sinTeta*y)));
+                    int newY = Math.abs((int)Math.round(matrixSizeY/2.0 - (-sinTeta*x +
+                           cosTeta*y)));
+                    System.out.println(newX + ", " + newY);
+                    resultingMatrix[newY][newX] = 1;
+                }
+            }
+        }
+        printImg(resultingMatrix);
+        return resultingMatrix;
     }
 }
