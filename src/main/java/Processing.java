@@ -23,10 +23,39 @@ public class Processing {
         // Ошибка в центрировании 9_2
         // Образы для увеличения: 2_1, 8_1, 9_1
         // Образы для уменьшения: 2_3, 8_4, 9_2
-        preprocImg(images.test8_5);
+        //preprocImg(images.test8_5);
 
+        preprocImg("\\A\\A10.png");
         //preprocImg("\\rotA.png");
-        //preprocImg("\\Result.png");
+
+        // Код для проверки потерь пикселей у изображений
+        /*
+        String imgName = "\\bigA.png";
+        File file = new File(images.path+imgName);
+        Integer[][] img = readAndConvertImageToArray(file);
+        img = translation(img);
+        Integer delta = 0;
+        Integer pxImg = pixelCount(img);
+        int i = 0;
+        int maxDef = 0;
+        int minDef = 0;
+        int px, def;
+        for (Double deg=0.0; deg<=360.0; deg+=10.0) {
+            px = pixelCount(rot(img, deg));
+            def = pxImg - px;
+            if(def > maxDef)
+                maxDef = def;
+            if(def < minDef)
+                minDef = def;
+            delta += Math.abs(def);
+            i++;
+        }
+        System.out.println("Количество пикселей:     " + pxImg);
+        System.out.println("Максимальное отклонение: " + maxDef);
+        System.out.println("Минимальное отклонение:  " + minDef);
+        System.out.println("Среднее отклонение:      " + delta/i);
+         */
+
     }
 
     // Работа с образом в виде изображения
@@ -36,7 +65,8 @@ public class Processing {
         img = translation(img);
         //img = scaling(img);
         //img = fillGaps(img);
-        rotation(img);
+        //img = rotation(img);
+        img = rot(img, 90.0);
         convertArrayToImageAndWrite(img, "Result.png");
     }
 
@@ -46,7 +76,9 @@ public class Processing {
         imgName = translation(imgName);
         //imgName = scaling(imgName);
         //imgName = fillGaps(imgName);
-        rotation(imgName);
+        printImg(imgName);
+        imgName = rotation(imgName);
+        printImg(imgName);
     }
 
     // Чтение изображения из файла
@@ -147,7 +179,6 @@ public class Processing {
                 if(img[y][x] != 0)
                     resultingMatrix[y+shiftY][x+shiftX] = 1;
 
-        printImg(resultingMatrix);
 
         return resultingMatrix;
     }
@@ -219,8 +250,6 @@ public class Processing {
             resultingMatrix = img;
         }
 
-        printImg(resultingMatrix);
-
         return resultingMatrix;
     }
 
@@ -253,8 +282,7 @@ public class Processing {
                 indexY = 1;
             }
         }
-        System.out.println();
-        printImg(img);
+
         return img;
     }
 
@@ -273,17 +301,17 @@ public class Processing {
         for(int y=0; y<matrixSizeY; y++) {
             for(int x=0; x<matrixSizeX; x++) {
                 if(img[y][x] != 0) {
-                    txx += img[y][x]*(x+1)*(x+1);
-                    tyy += img[y][x]*(y+1)*(y+1);
-                    txy += img[y][x]*(x+1)*(y+1);
+                    txx += (img[y][x]*(x+1)*(x+1));
+                    tyy += (img[y][x]*(y+1)*(y+1));
+                    txy += (img[y][x]*(x+1)*(y+1));
                 }
             }
         }
         System.out.println("Txx = " + txx);
         System.out.println("Tyy = " + tyy);
         System.out.println("Txy = " + txy);
-        /*Double bigM = Math.sqrt(8*txy*txy + 2*Math.pow(tyy-txx, 2) + 2*(tyy-txx) *
-                                 Math.sqrt(Math.pow(tyy-txx, 2)) + 4*txy*txy);*/
+        //Double bigM = Math.sqrt(8*txy*txy + 2*Math.pow(tyy-txx, 2) + 2*(tyy-txx) *
+        //                         Math.sqrt(Math.pow(tyy-txx, 2)) + 4*txy*txy);
         Double bigM = Math.sqrt(2 * (Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy) + (tyy-txx)) *
                                 Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy));
         System.out.println("M = " + bigM);
@@ -291,10 +319,8 @@ public class Processing {
         //Double cosTeta = (2*tyy)/bigM;
         Double sinTeta = ((tyy-txx) + Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy))/bigM;
         Double cosTeta = (2*txy)/bigM;
-        System.out.println("sin = " + Math.sin(sinTeta));
-        System.out.println("cos = " + Math.cos(cosTeta));
-        //sinTeta = Math.sin(sinTeta);
-        //cosTeta = Math.cos(cosTeta);
+        System.out.println("sin = " + sinTeta);
+        System.out.println("cos = " + cosTeta);
         for(int y=0; y<matrixSizeY; y++) {
             for(int x=0; x<matrixSizeX; x++) {
                 if(img[y][x] != 0) {
@@ -302,16 +328,87 @@ public class Processing {
                     //Double newY = x*sinTeta + y*cosTeta;
                     //Double newX = cosTeta*x + sinTeta*y;
                     //Double newY = -sinTeta*x + cosTeta*y;
-                    int newX = Math.abs((int)Math.round(matrixSizeX/2.0 - (cosTeta*x +
-                            sinTeta*y)));
-                    int newY = Math.abs((int)Math.round(matrixSizeY/2.0 - (-sinTeta*x +
-                           cosTeta*y)));
+                    //int newX = Math.abs((int)Math.round(matrixSizeX/2.0 - (cosTeta*x +
+                    //        sinTeta*y)));
+                    //int newY = Math.abs((int)Math.round(matrixSizeY/2.0 - (-sinTeta*x +
+                    //       cosTeta*y)));
+                    int newX = Math.abs((int)Math.round(matrixSizeX/2.0 - ((x+1)*cosTeta - (y+1)*sinTeta)));
+                    int newY = Math.abs((int)Math.round(matrixSizeY/2.0 - ((x+1)*sinTeta + (y+1)*cosTeta)));
                     System.out.println(newX + ", " + newY);
                     resultingMatrix[newY][newX] = 1;
                 }
             }
         }
-        printImg(resultingMatrix);
+
         return resultingMatrix;
+    }
+
+    // Поворот матрицы на заданный угол
+    public static Integer[][] rot(Integer[][] img, Double angle) {
+        Integer matrixSizeY = img.length;    // Высота
+        Integer matrixSizeX = img[0].length; // Ширина
+
+        Double radians = angle/180.0 * Math.PI;
+        Double S = Math.sin(radians);
+        Double C = Math.cos(radians);
+
+        Double a = matrixSizeX/2*C;
+        Double b = matrixSizeY/2*S;
+        Double c = matrixSizeY/2*C;
+        Double d = matrixSizeX/2*S;
+
+        //Integer outputWidth  = (int)Math.round(Math.max(Math.max(-a+b, a+b), Math.max(-a-b, a-b)) * 2.0);
+        //Integer outputHeight = (int)Math.round(Math.max(Math.max(-c+d, c+d), Math.max(-c-d, c-d)) * 2.0);
+        Integer outputWidth = matrixSizeX;
+        Integer outputHeight = matrixSizeY;
+        Integer[][] resultingMatrix = new Integer[outputHeight][outputWidth];
+        for(Integer[] row: resultingMatrix)
+            Arrays.fill(row, 0);
+
+        S = Math.sin(-radians);
+        C = Math.cos(-radians);
+
+        for (int outy=0; outy<outputHeight; outy++) {
+            for (int outx=0; outx<outputWidth; outx++) {
+                Double cox = outx - outputWidth/2.0+1;
+                Double coy = outy - outputHeight/2.0+1;
+
+                Double inx = cox*C-coy*S + matrixSizeX/2;
+                Double iny = coy*C+cox*S + matrixSizeY/2;
+
+                Integer basex = inx.intValue();
+                Double tx     = inx - basex;
+                Integer basey = iny.intValue();
+                Double ty     = iny -basey;
+                resultingMatrix[outy][outx] = sampleAt(img, basex, basey);
+            }
+        }
+
+        return resultingMatrix;
+    }
+
+    // Функция для вычисления значения пикселя
+    public static Integer sampleAt(Integer[][] img, int x, int y) {
+        Integer matrixSizeY = img.length;    // Высота
+        Integer matrixSizeX = img[0].length; // Ширина
+        Integer clamp = 1;
+        if (x < 0) {
+            x = 0; clamp = 0;
+        } else {
+            if (x >= matrixSizeX) {
+                x = matrixSizeX - 1; clamp = 0;
+            }
+        }
+
+        if (y < 0) {
+            y = 0; clamp = 0;
+        } else {
+            if (y >= matrixSizeY) {
+                y = matrixSizeY -1; clamp = 0;
+            }
+        }
+
+        Integer pixel = img[y][x];
+        return pixel*clamp;
     }
 }
