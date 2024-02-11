@@ -1,17 +1,27 @@
 import java.io.File;
+import java.io.IOException;
 
 public class ProcessingApplication {
     public static Images images = new Images();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // Ошибка в центрировании 9_2
         // Образы для увеличения: 2_1, 8_1, 9_1
         // Образы для уменьшения: 2_3, 8_4, 9_2
 
-        //preprocImg("\\A\\A10.png");
-        //preprocImg("\\cat.png");
-        Processing.preprocImg(images.test2_0);
+        //Processing.preprocImg("\\A\\A9.png");
+        //Processing.preprocImg("\\bigA.png");
+        Processing.preprocImg(images.test9_1);
+
+        // Тесты.
+        // Увеличение: test2_0, test6_7, test8_1, test9_1
+        // Уменьшение: test8_0, test9_0
+        /*Integer[][] img = images.test9_1;
+        Processing.printImg(img);
+        img = Processing.translation(img);
+        img = Processing.scalTest(img);
+        Processing.printImg(img);*/
 
         // Код для проверки потерь пикселей у изображений
         /*

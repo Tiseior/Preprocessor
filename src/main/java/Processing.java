@@ -12,8 +12,10 @@ public class Processing {
     public static void preprocImg(String imgName) throws IOException {
         File file = new File(images.path+imgName);
         Integer[][] img = readAndConvertImageToArray(file);
+        //img = translation(img);
+        //img = scaling(img);
+        img = scalingNew(img);
         img = translation(img);
-        img = scaling(img);
         //img = fillGaps(img);
         /*Integer pxOld = 0;
         Integer pxNew = 0;
@@ -34,9 +36,9 @@ public class Processing {
     // Работа с образом в виде двумерного массива
     public static void preprocImg(Integer[][] imgName) {
         printImg(imgName);
-        imgName = translation(imgName);
         printImg(imgName);
-        imgName = scaling(imgName);
+        imgName = scalingNew(imgName);
+        imgName = translation(imgName);
         //imgName = fillGaps(imgName);
         printImg(imgName);
         //imgName = rotation(imgName);
@@ -146,6 +148,136 @@ public class Processing {
         return resultingMatrix;
     }
 
+    // Тестовый метод для подбора алгоритма масштабирования
+    public static Integer[][] scalTest(Integer[][] img) {
+        Integer matrixSizeY = img.length;
+        Integer matrixSizeX = img[0].length;
+        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
+        for(Integer[] row: resultingMatrix)
+            Arrays.fill(row, 0);
+        Integer allPixels = matrixSizeX*matrixSizeY;
+        System.out.println("allPixels: " + allPixels);
+        Integer pixelCount = pixelCount(img);
+        Integer[] coordsOld = new Integer[4];
+        // Вычисления данных для образа
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    if (coordsOld[0] == null) {
+                        // Первое заполнение массивов с координатами
+                        coordsOld[0] = x; coordsOld[1] = y;
+                        coordsOld[2] = x; coordsOld[3] = y;
+                    } else {
+                        // Дальнейшее изменение координат образов
+                        if(x < coordsOld[0]) coordsOld[0] = x;
+                        if(y < coordsOld[1]) coordsOld[1] = y;
+                        if(x > coordsOld[2]) coordsOld[2] = x;
+                        if(y > coordsOld[3]) coordsOld[3] = y;
+                    }
+                }
+            }
+        // Вычисление ширины и высоты старого образа
+        int sizeOldX = coordsOld[2]-coordsOld[0]+1;
+        int sizeOldY = coordsOld[3]-coordsOld[1]+1;
+        System.out.println("img: " + matrixSizeX + " x " + matrixSizeY);
+        System.out.println("sizeOld: " + sizeOldX + " x " + sizeOldY);
+        Integer imgPixels = sizeOldX*sizeOldY;
+        System.out.println("imgPixels: " + imgPixels);
+        // Вычисление среднего расстояния с преобразованными координатами образа
+        //avgDistance = Math.sqrt((coordsOld[0]-coordsOld[2])*(coordsOld[0]-coordsOld[2]) +
+        //                        (coordsOld[1]-coordsOld[3])*(coordsOld[1]-coordsOld[3]));
+        int coordX, coordY;
+        Double avgDistance = 0.0; // Среднее расстояние
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++)
+                if(img[y][x] != 0) {
+                    coordX = x - coordsOld[0]+1;
+                    coordY = y - coordsOld[1]+1;
+                    //coordX = x+1; coordY = y+1;
+                    avgDistance = avgDistance + img[y][x]*Math.sqrt((coordX)*(coordX) +
+                                                                    (coordY)*(coordY));
+                }
+        avgDistance /= pixelCount;
+        System.out.println("avgDistance: " + avgDistance);
+        //Double frameSizePart = Math.sqrt(matrixSizeX*matrixSizeX+matrixSizeY*matrixSizeY);
+        Double frameSizePart = (double) allPixels/4;//(double) (matrixSizeX/(sizeOldX) + matrixSizeY/(sizeOldY));
+        System.out.println("frameSizePart: " + frameSizePart);
+        Double scalingCoef = 0.0;
+        //if(allPixels>4*imgPixels) {
+            scalingCoef = frameSizePart/avgDistance;
+        //}
+        //else if(allPixels<4*imgPixels)
+        //    scalingCoef = avgDistance/frameSizePart;
+        //scalingCoef = Math.floor(allPixels / (4.0*imgPixels));
+        Double coefX = matrixSizeX / (2.0 * sizeOldX);
+        Double coefY = matrixSizeY / (2.0 * sizeOldY);
+        scalingCoef = (coefX<coefY) ? coefX : coefY;
+        System.out.println("scalingCoef: " + scalingCoef);
+        Integer[] coordsNew = new Integer[4];
+        /*for(int i=0; i<coordsOld.length; i++)
+            if(allPixels>4*imgPixels)
+                coordsNew[i] = Math.abs((int) Math.round(matrixSizeX/2.0 - coordsOld[i]*scalingCoef));
+            else if(allPixels<4*imgPixels)
+                coordsNew[i] = Math.abs((int) Math.round(coordsOld[i]*scalingCoef));*/
+        coordsNew[0] = 0; coordsNew[1] = 0;
+        coordsNew[2] = (int) Math.round(sizeOldX*scalingCoef);
+        coordsNew[3] = (int) Math.round(sizeOldY*scalingCoef);
+        for(int i=0; i<coordsOld.length; i++) {
+            System.out.println("old: " + coordsOld[i]);
+            System.out.println("new: " + (coordsNew[i]));
+        }
+        nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
+        resultingMatrix = translation(resultingMatrix);
+
+        return resultingMatrix;
+    }
+
+    // Подобранный алгоритм масштабирования
+    public static Integer[][] scalingNew(Integer[][] img) {
+        Integer matrixSizeY = img.length;
+        Integer matrixSizeX = img[0].length;
+        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
+        for(Integer[] row: resultingMatrix)
+            Arrays.fill(row, 0);
+        Integer[] coordsOld = new Integer[4];
+        // Вычисления данных для образа
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    if (coordsOld[0] == null) {
+                        // Первое заполнение массивов с координатами
+                        coordsOld[0] = x; coordsOld[1] = y;
+                        coordsOld[2] = x; coordsOld[3] = y;
+                    } else {
+                        // Дальнейшее изменение координат образов
+                        if(x < coordsOld[0]) coordsOld[0] = x;
+                        if(y < coordsOld[1]) coordsOld[1] = y;
+                        if(x > coordsOld[2]) coordsOld[2] = x;
+                        if(y > coordsOld[3]) coordsOld[3] = y;
+                    }
+                }
+            }
+        // Вычисление ширины и высоты старого образа
+        int sizeOldX = coordsOld[2]-coordsOld[0]+1;
+        int sizeOldY = coordsOld[3]-coordsOld[1]+1;
+        Double scalingCoef = 0.0;
+        Double coefX = matrixSizeX / (2.0 * sizeOldX);
+        Double coefY = matrixSizeY / (2.0 * sizeOldY);
+        scalingCoef = (coefX<coefY) ? coefX : coefY;
+        System.out.println("scalingCoef: " + scalingCoef);
+        Integer[] coordsNew = new Integer[4];
+        coordsNew[0] = 0; coordsNew[1] = 0;
+        coordsNew[2] = (int) Math.round(sizeOldX*scalingCoef);
+        coordsNew[3] = (int) Math.round(sizeOldY*scalingCoef);
+        for(int i=0; i<coordsOld.length; i++) {
+            System.out.println("old: " + coordsOld[i]);
+            System.out.println("new: " + (coordsNew[i]));
+        }
+        nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
+
+        return resultingMatrix;
+    }
+
     // Масштабирование образа
     public static Integer[][] scaling(Integer[][] img) {
         Integer matrixSizeY = img.length;
@@ -231,7 +363,7 @@ public class Processing {
                         resultingMatrix[ym][xm] = 1;
                     }
                 }
-            printImg(resultingMatrix);
+            //printImg(resultingMatrix);
             nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
         } catch (java.lang.ArrayIndexOutOfBoundsException e) {
             System.out.println("Данный образ нельзя масштабировать");
@@ -293,11 +425,11 @@ public class Processing {
         int oldX, oldY;
         for(int y=coordsNew[1]; y<=coordsNew[3]; y++)
             for(int x=coordsNew[0]; x<=coordsNew[2]; x++)
-                if(imgNew[y][x] == 0) {
+                /*if(imgNew[y][x] == 0)*/ {
                     // Вычисление координат старого образа по преобразованным
                     // координатам нового образа
-                    oldX = Math.round((x - coordsNew[0]) * coefX);
-                    oldY = Math.round((y - coordsNew[1]) * coefY);
+                    oldX = (int)Math.floor((x - coordsNew[0]) * coefX);
+                    oldY = (int)Math.floor((y - coordsNew[1]) * coefY);
                     // Заполнение элемента нового образа, возвращаясь
                     // к стандартным координатам
                     imgNew[y][x] = imgOld[oldY + coordsOld[1]][oldX + coordsOld[0]];
