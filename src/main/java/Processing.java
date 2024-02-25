@@ -1,7 +1,9 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.File;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import javax.imageio.ImageIO;
 
 public class Processing {
@@ -29,7 +31,10 @@ public class Processing {
         } while (!Objects.equals(pxNew, pxOld));
         System.out.println("Количество итераций: " + iteration);*/
         //img = rotation(img);
-        //img = rot(img, 90.0);
+        //takeAngle(img);
+        //houghLine(img);
+        //img = rot(img, -45.00);
+        img = rot(img, takeAngle(img));
         convertArrayToImageAndWrite(img, "Result.png");
     }
 
@@ -41,6 +46,7 @@ public class Processing {
         imgName = translation(imgName);
         //imgName = fillGaps(imgName);
         printImg(imgName);
+        takeAngle(imgName);
         //imgName = rotation(imgName);
         //rot(imgName, 90.0);
         //printImg(imgName);
@@ -211,7 +217,7 @@ public class Processing {
         //scalingCoef = Math.floor(allPixels / (4.0*imgPixels));
         Double coefX = matrixSizeX / (2.0 * sizeOldX);
         Double coefY = matrixSizeY / (2.0 * sizeOldY);
-        scalingCoef = (coefX<coefY) ? coefX : coefY;
+        scalingCoef = (coefX>coefY) ? coefX : coefY;
         System.out.println("scalingCoef: " + scalingCoef);
         Integer[] coordsNew = new Integer[4];
         /*for(int i=0; i<coordsOld.length; i++)
@@ -438,6 +444,160 @@ public class Processing {
         return imgNew;
     }
 
+    // Описание принципа работы.
+    // У образа находим самый близкий и самый дальний пиксель к оси Y.
+    // По этим двум точкам находим третью, чтоб получился прямоугольный треугольник.
+    // Находим длины противолежащей стороны и гипотенузы.
+    // Дальше находим заданный угол отклонения образа.
+    // Есть два варианта. Если прямой угол внизу треугольника, то получившийся угол положительный.
+    // Если прямой угол вверху треугольника, то получившийся угол отрицательный.
+    public static double takeAngle(Integer[][] img) {
+        Integer matrixSizeY = img.length;
+        Integer matrixSizeX = img[0].length;
+        // Координаты (x, y) верхнего левого пикселя и
+        // координаты (x, y) верхнего правого пикселя
+        Integer[] coords = new Integer[4];
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    if (coords[0] == null) {
+                        // Первое заполнение массивов с координатами
+                        coords[0] = x; coords[1] = y;
+                        coords[2] = x; coords[3] = y;
+                    } else {
+                        // Дальнейшее изменение координат образов
+                        if(x < coords[0]) {
+                            coords[0] = x; coords[1] = y;
+                        }
+                        if(x > coords[2]) {
+                            coords[2] = x; coords[3] = y;
+                        }
+                    }
+                    break;
+                }
+            }
+        System.out.println(coords[0] + " " + coords[1] + " " + coords[2] + " " + coords[3]);
+        int dopX, dopY;
+        if(coords[1] < coords[3]) {
+            dopX = coords[0]; dopY = coords[3];
+            double a = Math.sqrt((coords[2] - dopX)*(coords[2] - dopX) + (coords[3] - dopY)*(coords[3] - dopY));
+            System.out.println("a = " + a);
+            double c = Math.sqrt((coords[0]- coords[2])*(coords[0]- coords[2]) + (coords[1] - coords[3])*(coords[1] - coords[3]));
+            System.out.println("c = " + c);
+            System.out.println("var 1");
+            double angle = Math.toDegrees(Math.asin(a/c));
+            System.out.println(angle);
+            return angle;
+        } else if(coords[1] > coords[3]) {
+            dopX = coords[2]; dopY = coords[1];
+            double a = Math.sqrt((coords[0] - dopX)*(coords[0] - dopX) + (coords[1] - dopY)*(coords[1] - dopY));
+            System.out.println("a = " + a);
+            double c = Math.sqrt((coords[0] - coords[2])*(coords[0] - coords[2]) + (coords[1] - coords[3])*(coords[1] - coords[3]));
+            System.out.println("c = " + c);
+            System.out.println("var 2");
+            double angle = -Math.toDegrees(Math.asin(a/c));
+            System.out.println(angle);
+            return angle;
+        } else
+            System.out.println(0.0);
+
+        return 0.0;
+    }
+    // Метод Хафа для поиска линий
+    public static double houghLine(Integer[][] img) {
+        Integer matrixSizeY = img.length;
+        Integer matrixSizeX = img[0].length;
+
+        Integer[] coordsOld = new Integer[4];
+        // Вычисления данных для образа
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    if (coordsOld[0] == null) {
+                        // Первое заполнение массивов с координатами
+                        coordsOld[0] = x; coordsOld[1] = y;
+                        coordsOld[2] = x; coordsOld[3] = y;
+                    } else {
+                        // Дальнейшее изменение координат образов
+                        if(x < coordsOld[0]) coordsOld[0] = x;
+                        if(y < coordsOld[1]) coordsOld[1] = y;
+                        if(x > coordsOld[2]) coordsOld[2] = x;
+                        if(y > coordsOld[3]) coordsOld[3] = y;
+                    }
+                }
+            }
+        // Вычисление ширины и высоты старого образа
+        int sizeOldX = coordsOld[2]-coordsOld[0]+1;
+        int sizeOldY = coordsOld[3]-coordsOld[1]+1;
+
+        // Формула x*cosT + y*sinT = r
+        // Перебирать T от 0 до 180 и точки (x, y) образа
+        // Вычислять, при какой паре (r, T) будет больше всего точек
+        // Эта пара и будет той самой прямой
+
+        int diag = (int)Math.sqrt(sizeOldX*sizeOldX + sizeOldY*sizeOldY);
+        int[] arr = new int[180];
+        for(int i=0; i<180; i++)
+            arr[i] = 0;
+        double teta = 0.0;
+        Double accuracy = 0.1;
+        System.out.println(coordsOld[0] + " " + coordsOld[1] + " " + coordsOld[2] + " " + coordsOld[3]);
+        for(int y=coordsOld[1]; y<=coordsOld[3]; y++) {
+            for(int x=coordsOld[0]; x<=coordsOld[2]; x++) {
+                if(img[y][x] != 0) {
+                    for(int f=0; f<180; f++) {
+                        for(int r=0; r<diag; r++) {
+                            teta = Math.toRadians(f);
+                            if((Math.abs((x+1)*Math.cos(teta) + (y+1)*Math.sin(teta)) - r) < accuracy)
+                                arr[f]++;
+                        }
+                    }
+                }
+            }
+        }
+        int max = 0;
+        int f = 0;
+        for(int i=0; i<arr.length; i++){
+            if(arr[i] > max) {
+                max = arr[i];
+                f = i;
+            }
+        }
+        System.out.println(max + ", " + f);
+        // Точность
+        //Double accuracy = 0.1;
+        // Тройка (r, teta, счётчик)
+        // Может, не лист, а пары?
+        /*int diag = (int)Math.sqrt(sizeOldX*sizeOldX + sizeOldY*sizeOldY);
+        int[] arr = new int[diag];
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if (img[y][x] != 0) {
+                    for(int f=0; f<180; f+=1) {
+                        for(int r=0; r<diag; r++) {
+                            double teta = Math.toRadians(f);
+                            if((Math.abs((x+1)*Math.cos(teta) + (y+1)*Math.sin(teta)) - r) < accuracy)
+                                arr[r]++;
+                        }
+                    }
+                }
+            }
+        int max = 0;
+        double teta = 0.0;
+        int R = 0;
+        for(int f=0; f<180; f++) {
+            for(int r=0; r<diag; r++) {
+                if(arr[r]>max) {
+                    max = arr[r];
+                    teta = f;
+                    R = r;
+                }
+            }
+        }
+        System.out.println(max + ", " + teta + ", " + R);*/
+        return 0.0;
+    }
+
     // Поворот образа
     public static Integer[][] rotation(Integer[][] img) {
         Integer matrixSizeY = img.length;
@@ -450,7 +610,37 @@ public class Processing {
         Integer txx = 0;
         Integer tyy = 0;
         Integer txy = 0;
+        Integer[] coordsOld = new Integer[4];
+        // Вычисления данных для образа
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    if (coordsOld[0] == null) {
+                        // Первое заполнение массивов с координатами
+                        coordsOld[0] = x; coordsOld[1] = y;
+                        coordsOld[2] = x; coordsOld[3] = y;
+                    } else {
+                        // Дальнейшее изменение координат образов
+                        if(x < coordsOld[0]) coordsOld[0] = x;
+                        if(y < coordsOld[1]) coordsOld[1] = y;
+                        if(x > coordsOld[2]) coordsOld[2] = x;
+                        if(y > coordsOld[3]) coordsOld[3] = y;
+                    }
+                }
+            }
+        int coordX, coordY = 0;
         for(int y=0; y<matrixSizeY; y++) {
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    coordX = x - (coordsOld[0]+1);
+                    coordY = y - (coordsOld[1]+1);
+                    txx += (img[y][x]* coordX * coordX);
+                    tyy += (img[y][x]* coordY * coordY);
+                    txy += (img[y][x]* coordX * coordY);
+                }
+            }
+        }
+        /*for(int y=0; y<matrixSizeY; y++) {
             for(int x=0; x<matrixSizeX; x++) {
                 if(img[y][x] != 0) {
                     txx += (img[y][x]*(x+1)*(x+1));
@@ -458,21 +648,33 @@ public class Processing {
                     txy += (img[y][x]*(x+1)*(y+1));
                 }
             }
-        }
+        }*/
         System.out.println("Txx = " + txx);
         System.out.println("Tyy = " + tyy);
         System.out.println("Txy = " + txy);
+        Double m1 = 8.0 * txy * txy;
+        Double m2 = 2.0 * Math.pow(tyy - txx, 2);
+        Double m3 = 1.0 * (tyy - txx);
+        Double m4 = Math.sqrt(Math.pow(tyy - txx, 2) + 4.0 * txy * txy);
+        Double bigM = Math.sqrt(2.0 * (m4 + m3) * m4);
         //Double bigM = Math.sqrt(8*txy*txy + 2*Math.pow(tyy-txx, 2) + 2*(tyy-txx) *
         //                         Math.sqrt(Math.pow(tyy-txx, 2)) + 4*txy*txy);
-        Double bigM = Math.sqrt(2 * (Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy) + (tyy-txx)) *
-                                Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy));
+        //Double bigM = Math.sqrt(2 * (Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy) + (tyy-txx)) *
+        //                        Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy));
         System.out.println("M = " + bigM);
+        Double sinTeta = ((tyy - txx) + m4) / bigM;
+        Double cosTeta = (2 * txy) / bigM;
         //Double sinTeta = (tyy - txx + Math.sqrt(Math.pow(tyy-txx, 2)) + 4*txy*txy)/bigM;
         //Double cosTeta = (2*tyy)/bigM;
-        Double sinTeta = ((tyy-txx) + Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy))/bigM;
-        Double cosTeta = (2*txy)/bigM;
-        System.out.println("sin = " + sinTeta);
-        System.out.println("cos = " + cosTeta);
+        //Double sinTeta = ((tyy-txx) + Math.sqrt(Math.pow(tyy-txx, 2) + 4*txy*txy))/bigM;
+        //Double cosTeta = (2*txy)/bigM;
+        System.out.println("sin = " + sinTeta + " => " + Math.toDegrees(Math.asin(sinTeta)));
+        Double degS = Math.sin(sinTeta);
+        System.out.println(degS + " => " + Math.toDegrees(degS));
+        System.out.println("cos = " + cosTeta + " => " + Math.toDegrees(Math.acos(cosTeta)));
+        Double degC = Math.cos(cosTeta);
+        System.out.println(degC + " => " + Math.toDegrees(degC));
+        System.out.println(Math.toDegrees(sinTeta-cosTeta));
         for(int y=0; y<matrixSizeY; y++) {
             for(int x=0; x<matrixSizeX; x++) {
                 if(img[y][x] != 0) {

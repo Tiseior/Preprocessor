@@ -10,9 +10,9 @@ public class ProcessingApplication {
         // Образы для увеличения: 2_1, 8_1, 9_1
         // Образы для уменьшения: 2_3, 8_4, 9_2
 
-        //Processing.preprocImg("\\A\\A9.png");
-        //Processing.preprocImg("\\bigA.png");
-        Processing.preprocImg(images.test9_1);
+        //Processing.preprocImg("\\A\\A1.png");
+        Processing.preprocImg("\\nawA.png");
+        //Processing.preprocImg(images.test8_0);
 
         // Тесты.
         // Увеличение: test2_0, test6_7, test8_1, test9_1
