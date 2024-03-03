@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.io.File;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Objects;
 import javax.imageio.ImageIO;
 
 public class Processing {
@@ -474,68 +475,30 @@ public class Processing {
 
         Double[] angles = new Double[4];
         // Две точки пересечения с прямоугольником для левого верхнего угла
-        Integer[] cornerLeftTop = new Integer[6];
-        for(int x=coordsOld[0]; x<=coordsOld[2]; x++)
-            if(img[coordsOld[1]][x] != 0) {
-                cornerLeftTop[0] = x;
-                cornerLeftTop[1] = coordsOld[1];
-                break;
-            }
-        for(int y=coordsOld[1]; y<=coordsOld[3]; y++)
-            if(img[y][coordsOld[0]] != 0) {
-                cornerLeftTop[2] = coordsOld[0];
-                cornerLeftTop[3] = y;
-                break;
-            }
-        cornerLeftTop[4] = coordsOld[0];
-        cornerLeftTop[5] = coordsOld[1];
         System.out.print("Left Top: ");
-        System.out.print("(" + cornerLeftTop[0] + " " + cornerLeftTop[1] + ") ");
-        System.out.print("(" + cornerLeftTop[2] + " " + cornerLeftTop[3] + ") ");
-        System.out.print("(" + cornerLeftTop[4] + " " + cornerLeftTop[5] + ")\n");
+        Integer[] cornerLeftTop =
+                calculCoords(coordsOld[0], coordsOld[2], coordsOld[1], coordsOld[3], img);
         angles[0] = angle(cornerLeftTop);
         // Две точки пересечения с прямоугольником для правого верхнего угла
-        Integer[] cornerRightTop = new Integer[6];
-        for(int x=coordsOld[2]; x>=coordsOld[0]; x--)
-            if(img[coordsOld[1]][x] != 0) {
-                cornerRightTop[0] = x;
-                cornerRightTop[1] = coordsOld[1];
-                break;
-            }
-        for(int y=coordsOld[1]; y<=coordsOld[3]; y++)
-            if(img[y][coordsOld[2]] != 0) {
-                cornerRightTop[2] = coordsOld[2];
-                cornerRightTop[3] = y;
-                break;
-            }
-        cornerRightTop[4] = coordsOld[2];
-        cornerRightTop[5] = coordsOld[1];
         System.out.print("Right Top: ");
-        System.out.print("(" + cornerRightTop[0] + " " + cornerRightTop[1] + ") ");
-        System.out.print("(" + cornerRightTop[2] + " " + cornerRightTop[3] + ") ");
-        System.out.print("(" + cornerRightTop[4] + " " + cornerRightTop[5] + ")\n");
+        Integer[] cornerRightTop =
+                calculCoords(-coordsOld[2], coordsOld[0], coordsOld[1], coordsOld[3], img);
         angles[1] = angle(cornerRightTop);
         // Две точки пересечения с прямоугольником для левого нижнего угла
-        Integer[] cornerLeftBottom = new Integer[6];
-        for(int x=coordsOld[0]; x<=coordsOld[2]; x++)
-            if(img[coordsOld[3]][x] != 0) {
-                cornerLeftBottom[0] = x;
-                cornerLeftBottom[1] = coordsOld[3];
-                break;
-            }
-        for(int y=coordsOld[3]; y>=coordsOld[1]; y--)
-            if(img[y][coordsOld[0]] != 0) {
-                cornerLeftBottom[2] = coordsOld[0];
-                cornerLeftBottom[3] = y;
-                break;
-            }
-        cornerLeftBottom[4] = coordsOld[0];
-        cornerLeftBottom[5] = coordsOld[3];
         System.out.print("Left Bottom: ");
-        System.out.print("(" + cornerLeftBottom[0] + " " + cornerLeftBottom[1] + ") ");
-        System.out.print("(" + cornerLeftBottom[2] + " " + cornerLeftBottom[3] + ") ");
-        System.out.print("(" + cornerLeftBottom[4] + " " + cornerLeftBottom[5] + ")\n");
+        Integer[] cornerLeftBottom =
+                calculCoords(coordsOld[0], coordsOld[2], -coordsOld[3], coordsOld[1], img);
         angles[2] = angle(cornerLeftBottom);
+        // Две точки пересечения с прямоугольником для правого нижнего угла
+        System.out.print("Right Bottom: ");
+        Integer[] cornerRightBottom =
+                calculCoords(-coordsOld[2], coordsOld[0], -coordsOld[3], coordsOld[1], img);
+        angles[3] = angle(cornerRightBottom);
+
+        System.out.println("Angle Left Top: " + angles[0]);
+        System.out.println("Angle Right Top: " + angles[1]);
+        System.out.println("Angle Left Bottom: " + angles[2]);
+        System.out.println("Angle Right Bottom: " + angles[3]);
         boolean isPositive;
         // Проверка, является ли нижний левый угол положительным или отрицательным
         if(Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4])<Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5]))
@@ -543,33 +506,6 @@ public class Processing {
         else
             isPositive = false;
         System.out.println(isPositive);
-        // Две точки пересечения с прямоугольником для правого нижнего угла
-        Integer[] cornerRightBottom = new Integer[6];
-        for(int x=coordsOld[2]; x>=coordsOld[0]; x--)
-            if(img[coordsOld[3]][x] != 0) {
-                cornerRightBottom[0] = x;
-                cornerRightBottom[1] = coordsOld[3];
-                break;
-            }
-        for(int y=coordsOld[3]; y>=coordsOld[1]; y--)
-            if(img[y][coordsOld[2]] != 0) {
-                cornerRightBottom[2] = coordsOld[2];
-                cornerRightBottom[3] = y;
-                break;
-            }
-        cornerRightBottom[4] = coordsOld[2];
-        cornerRightBottom[5] = coordsOld[3];
-        System.out.print("Right Bottom: ");
-        System.out.print("(" + cornerRightBottom[0] + " " + cornerRightBottom[1] + ") ");
-        System.out.print("(" + cornerRightBottom[2] + " " + cornerRightBottom[3] + ") ");
-        System.out.print("(" + cornerRightBottom[4] + " " + cornerRightBottom[5] + ")\n");
-        angles[3] = angle(cornerRightBottom);
-
-        System.out.println("Angle Left Top: " + angles[0]);
-        System.out.println("Angle Right Top: " + angles[1]);
-        System.out.println("Angle Left Bottom: " + angles[2]);
-        System.out.println("Angle Right Bottom: " + angles[3]);
-        double ac = 1.0;
         Arrays.sort(angles);
         if(isPositive) {
             System.out.println("Angle: " + angles[0]);
@@ -580,6 +516,32 @@ public class Processing {
         }
     }
 
+    // Метод для вычисления координат вершин прямоугольного треугольника
+    public static Integer[] calculCoords(int xFrom, int xTo, int yFrom, int yTo, Integer[][] img) {
+        Integer[] coords = new Integer[6];
+        int xFromAbs = Math.abs(xFrom);
+        int yFromAbs = Math.abs(yFrom);
+        for(int x=xFrom; x<=xTo; x++)
+            if(img[yFromAbs][Math.abs(x)] != 0) {
+                coords[0] = Math.abs(x);
+                coords[1] = yFromAbs;
+                break;
+            }
+        for(int y=yFrom; y<=yTo; y++)
+            if(img[Math.abs(y)][xFromAbs] != 0) {
+                coords[2] = xFromAbs;
+                coords[3] = Math.abs(y);
+                break;
+            }
+        coords[4] = xFromAbs;
+        coords[5] = yFromAbs;
+        System.out.print("(" + coords[0] + " " + coords[1] + ") ");
+        System.out.print("(" + coords[2] + " " + coords[3] + ") ");
+        System.out.print("(" + coords[4] + " " + coords[5] + ")\n");
+        return coords;
+    }
+
+    // Метод для вычисления наименьшего угла у прямоугольного треугольника
     public static double angle(Integer[] triangle) {
         // Проверка, является ли образ "прямым"
         if(triangle[1].equals(triangle[3]))
