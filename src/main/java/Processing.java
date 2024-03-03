@@ -33,20 +33,21 @@ public class Processing {
         //img = rotation(img);
         //takeAngle(img);
         //houghLine(img);
-        //img = rot(img, -45.00);
-        img = rot(img, takeAngle(img));
+        //img = rot(img, 54.0);
+        img = rot(img, takeAngleV2(img));
         convertArrayToImageAndWrite(img, "Result.png");
     }
 
     // Работа с образом в виде двумерного массива
     public static void preprocImg(Integer[][] imgName) {
         printImg(imgName);
-        printImg(imgName);
-        imgName = scalingNew(imgName);
-        imgName = translation(imgName);
+        //imgName = scalingNew(imgName);
+        //imgName = translation(imgName);
         //imgName = fillGaps(imgName);
-        printImg(imgName);
-        takeAngle(imgName);
+        //printImg(imgName);
+        takeAngleV2(imgName);
+        //imgName = rot(imgName, 45.0);
+        //printImg(imgName);
         //imgName = rotation(imgName);
         //rot(imgName, 90.0);
         //printImg(imgName);
@@ -442,6 +443,184 @@ public class Processing {
                 }
 
         return imgNew;
+    }
+
+    public static double takeAngleV2(Integer[][] img) {
+        Integer matrixSizeY = img.length;
+        Integer matrixSizeX = img[0].length;
+
+        // (x, y) левого верхнего угла и (x, y) правого нижнего угла образа
+        Integer[] coordsOld = new Integer[4];
+        // Вычисления данных для образа
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    if (coordsOld[0] == null) {
+                        // Первое заполнение массивов с координатами
+                        coordsOld[0] = x; coordsOld[1] = y;
+                        coordsOld[2] = x; coordsOld[3] = y;
+                    } else {
+                        // Дальнейшее изменение координат образов
+                        if(x < coordsOld[0]) coordsOld[0] = x;
+                        if(y < coordsOld[1]) coordsOld[1] = y;
+                        if(x > coordsOld[2]) coordsOld[2] = x;
+                        if(y > coordsOld[3]) coordsOld[3] = y;
+                    }
+                }
+            }
+        // Вычисление ширины и высоты старого образа
+        int sizeOldX = coordsOld[2]-coordsOld[0]+1;
+        int sizeOldY = coordsOld[3]-coordsOld[1]+1;
+
+        Double[] angles = new Double[4];
+        // Две точки пересечения с прямоугольником для левого верхнего угла
+        Integer[] cornerLeftTop = new Integer[6];
+        for(int x=coordsOld[0]; x<=coordsOld[2]; x++)
+            if(img[coordsOld[1]][x] != 0) {
+                cornerLeftTop[0] = x;
+                cornerLeftTop[1] = coordsOld[1];
+                break;
+            }
+        for(int y=coordsOld[1]; y<=coordsOld[3]; y++)
+            if(img[y][coordsOld[0]] != 0) {
+                cornerLeftTop[2] = coordsOld[0];
+                cornerLeftTop[3] = y;
+                break;
+            }
+        cornerLeftTop[4] = coordsOld[0];
+        cornerLeftTop[5] = coordsOld[1];
+        System.out.print("Left Top: ");
+        System.out.print("(" + cornerLeftTop[0] + " " + cornerLeftTop[1] + ") ");
+        System.out.print("(" + cornerLeftTop[2] + " " + cornerLeftTop[3] + ") ");
+        System.out.print("(" + cornerLeftTop[4] + " " + cornerLeftTop[5] + ")\n");
+        angles[0] = angle(cornerLeftTop);
+        // Две точки пересечения с прямоугольником для правого верхнего угла
+        Integer[] cornerRightTop = new Integer[6];
+        for(int x=coordsOld[2]; x>=coordsOld[0]; x--)
+            if(img[coordsOld[1]][x] != 0) {
+                cornerRightTop[0] = x;
+                cornerRightTop[1] = coordsOld[1];
+                break;
+            }
+        for(int y=coordsOld[1]; y<=coordsOld[3]; y++)
+            if(img[y][coordsOld[2]] != 0) {
+                cornerRightTop[2] = coordsOld[2];
+                cornerRightTop[3] = y;
+                break;
+            }
+        cornerRightTop[4] = coordsOld[2];
+        cornerRightTop[5] = coordsOld[1];
+        System.out.print("Right Top: ");
+        System.out.print("(" + cornerRightTop[0] + " " + cornerRightTop[1] + ") ");
+        System.out.print("(" + cornerRightTop[2] + " " + cornerRightTop[3] + ") ");
+        System.out.print("(" + cornerRightTop[4] + " " + cornerRightTop[5] + ")\n");
+        angles[1] = angle(cornerRightTop);
+        // Две точки пересечения с прямоугольником для левого нижнего угла
+        Integer[] cornerLeftBottom = new Integer[6];
+        for(int x=coordsOld[0]; x<=coordsOld[2]; x++)
+            if(img[coordsOld[3]][x] != 0) {
+                cornerLeftBottom[0] = x;
+                cornerLeftBottom[1] = coordsOld[3];
+                break;
+            }
+        for(int y=coordsOld[3]; y>=coordsOld[1]; y--)
+            if(img[y][coordsOld[0]] != 0) {
+                cornerLeftBottom[2] = coordsOld[0];
+                cornerLeftBottom[3] = y;
+                break;
+            }
+        cornerLeftBottom[4] = coordsOld[0];
+        cornerLeftBottom[5] = coordsOld[3];
+        System.out.print("Left Bottom: ");
+        System.out.print("(" + cornerLeftBottom[0] + " " + cornerLeftBottom[1] + ") ");
+        System.out.print("(" + cornerLeftBottom[2] + " " + cornerLeftBottom[3] + ") ");
+        System.out.print("(" + cornerLeftBottom[4] + " " + cornerLeftBottom[5] + ")\n");
+        angles[2] = angle(cornerLeftBottom);
+        boolean isPositive;
+        // Проверка, является ли нижний левый угол положительным или отрицательным
+        if(Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4])<Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5]))
+            isPositive = true;
+        else
+            isPositive = false;
+        System.out.println(isPositive);
+        // Две точки пересечения с прямоугольником для правого нижнего угла
+        Integer[] cornerRightBottom = new Integer[6];
+        for(int x=coordsOld[2]; x>=coordsOld[0]; x--)
+            if(img[coordsOld[3]][x] != 0) {
+                cornerRightBottom[0] = x;
+                cornerRightBottom[1] = coordsOld[3];
+                break;
+            }
+        for(int y=coordsOld[3]; y>=coordsOld[1]; y--)
+            if(img[y][coordsOld[2]] != 0) {
+                cornerRightBottom[2] = coordsOld[2];
+                cornerRightBottom[3] = y;
+                break;
+            }
+        cornerRightBottom[4] = coordsOld[2];
+        cornerRightBottom[5] = coordsOld[3];
+        System.out.print("Right Bottom: ");
+        System.out.print("(" + cornerRightBottom[0] + " " + cornerRightBottom[1] + ") ");
+        System.out.print("(" + cornerRightBottom[2] + " " + cornerRightBottom[3] + ") ");
+        System.out.print("(" + cornerRightBottom[4] + " " + cornerRightBottom[5] + ")\n");
+        angles[3] = angle(cornerRightBottom);
+
+        System.out.println("Angle Left Top: " + angles[0]);
+        System.out.println("Angle Right Top: " + angles[1]);
+        System.out.println("Angle Left Bottom: " + angles[2]);
+        System.out.println("Angle Right Bottom: " + angles[3]);
+        double ac = 1.0;
+        Arrays.sort(angles);
+        if(isPositive) {
+            System.out.println("Angle: " + angles[0]);
+            return angles[0];
+        } else {
+            System.out.println("Angle: " + -angles[0]);
+            return -angles[0];
+        }
+    }
+
+    public static double angle(Integer[] triangle) {
+        // Проверка, является ли образ "прямым"
+        if(triangle[1].equals(triangle[3]))
+            return 0.0;
+        // Вычисление гипотенузы прямоугольного треугольника
+        double hypo = Math.sqrt((triangle[0]-triangle[2])*(triangle[0]-triangle[2]) +
+                (triangle[1]-triangle[3])*(triangle[1]-triangle[3]));
+        // Малый катет прямоугольного треугольника
+        double leg = Math.sqrt((triangle[0] - triangle[2])*(triangle[0] - triangle[2]));
+        // Вычисление угла поворота
+        double angle = Math.toDegrees(Math.asin(leg/hypo));
+        return angle;
+
+    }
+
+    public static double angleOld(Integer[] triangle) {
+        int dopX, dopY;
+        if(triangle[1] < triangle[3]) {
+            dopX = triangle[0]; dopY = triangle[3];
+            double a = Math.sqrt((triangle[2] - dopX)*(triangle[2] - dopX) + (triangle[3] - dopY)*(triangle[3] - dopY));
+            //System.out.println("a = " + a);
+            double c = Math.sqrt((triangle[0]- triangle[2])*(triangle[0]- triangle[2]) + (triangle[1] - triangle[3])*(triangle[1] - triangle[3]));
+            //System.out.println("c = " + c);
+            //System.out.println("var 1");
+            double angle = Math.toDegrees(Math.asin(a/c));
+            //System.out.println(angle);
+            return angle;
+        } else if(triangle[1] > triangle[3]) {
+            dopX = triangle[2]; dopY = triangle[1];
+            double a = Math.sqrt((triangle[0] - dopX)*(triangle[0] - dopX) + (triangle[1] - dopY)*(triangle[1] - dopY));
+            //System.out.println("a = " + a);
+            double c = Math.sqrt((triangle[0] - triangle[2])*(triangle[0] - triangle[2]) + (triangle[1] - triangle[3])*(triangle[1] - triangle[3]));
+            //System.out.println("c = " + c);
+            //System.out.println("var 2");
+            double angle = -Math.toDegrees(Math.asin(a/c));
+            //System.out.println(angle);
+            return angle;
+        } else
+            //System.out.println(0.0);
+
+        return 0.0;
     }
 
     // Описание принципа работы.
