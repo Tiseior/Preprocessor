@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,13 +64,19 @@ public class Processing {
             BufferedImage image = ImageIO.read(file);
             int height = image.getHeight();
             int width = image.getWidth();
+            // Преобразование изображение в чёрно-белое
+            BufferedImage blackAndWhiteImg = new BufferedImage(width, height,
+                    BufferedImage.TYPE_BYTE_GRAY);
+            Graphics2D graphics = blackAndWhiteImg.createGraphics();
+            graphics.drawImage(image, 0, 0, null);
             Integer[][] imgData = new Integer[height][width];
             for(int i=0; i<height*width; i++) {
-                int elem = image.getRGB(i/height, i%height);
-                if (elem == -1)
+                int elem = blackAndWhiteImg.getRGB(i/height, i%height);
+                // Тусклые пиксели делаем нулевыми
+                if (elem > -2550000)
                     imgData[i%height][i/height] = 0;
                 else
-                    imgData[i%height][i/height] = 1;
+                    imgData[i%height][i/height] = 1; // Здесь можно заменить на elem
             }
             return imgData;
         } catch (IOException e) {
@@ -86,10 +93,11 @@ public class Processing {
         BufferedImage newImage = new BufferedImage(img[0].length, img.length, BufferedImage.TYPE_INT_RGB);
         for(int i=0; i<img.length; i++){
             for (int j=0; j<img[0].length; j++){
-                if(img[i][j] == 0)
-                    newImage.setRGB(j, i,-1);
+                int elem = img[i][j];
+                if(elem == 0)
+                    newImage.setRGB(j, i, -1);
                 else
-                    newImage.setRGB(j, i, 0);
+                    newImage.setRGB(j, i, 0); // Здесь можно заменить на elem
             }
         }
         File output = new File(images.path+name);
@@ -113,10 +121,11 @@ public class Processing {
 
     // Количество единичных пикселей
     public static Integer pixelCount(Integer[][] img) {
-        Integer pixelCount = 0; // Количество единичных пикселей
+        Integer pixelCount = 0; // Количество не нулевых пикселей
         for(Integer[] row : img)
             for(Integer elem : row)
-                pixelCount += elem;
+                if(elem != 0)
+                    pixelCount += 1;
         return pixelCount;
     }
 
@@ -134,8 +143,10 @@ public class Processing {
         Integer shiftY = 0; // Сдвиг по оси Y
         for(int y=0; y<matrixSizeY; y++)
             for(int x=0; x<matrixSizeX; x++) {
-                shiftX = shiftX + (x+1)*img[y][x];
-                shiftY = shiftY + (y+1)*img[y][x];
+                if(img[y][x] != 0) {
+                    shiftX = shiftX + (x+1);
+                    shiftY = shiftY + (y+1);
+                }
             }
 
         shiftX = Math.round((float)(matrixSizeX/2.0) - (float)(shiftX/pixelCount));
@@ -148,10 +159,11 @@ public class Processing {
             shiftY+=1;*/
 
         for(int y=0; y<matrixSizeY; y++)
-            for(int x=0; x<matrixSizeX; x++)
-                if(img[y][x] != 0)
-                    resultingMatrix[y+shiftY][x+shiftX] = 1;
-
+            for(int x=0; x<matrixSizeX; x++) {
+                int elem = img[y][x];
+                if(elem != 0)
+                    resultingMatrix[y+shiftY][x+shiftX] = elem;
+            }
 
         return resultingMatrix;
     }
@@ -446,6 +458,8 @@ public class Processing {
         return imgNew;
     }
 
+    // Вторая версия метода для получения угла поворота по
+    // четырём прямоугольным треугольникам
     public static double takeAngleV2(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
