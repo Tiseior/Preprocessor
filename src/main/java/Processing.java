@@ -1,11 +1,8 @@
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.File;
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Objects;
 import javax.imageio.ImageIO;
 
 public class Processing {
@@ -16,26 +13,15 @@ public class Processing {
     public static void preprocImg(String imgName) throws IOException {
         File file = new File(images.path+imgName);
         Integer[][] img = readAndConvertImageToArray(file);
-        //img = translation(img);
-        //img = scaling(img);
+        //img = translation(img); // -
+        //img = scaling(img);     // -
         img = scalingNew(img);
         img = translation(img);
-        //img = fillGaps(img);
-        /*Integer pxOld = 0;
-        Integer pxNew = 0;
-        int iteration = 0;
-        do {
-            pxOld = pixelCount(img);
-            img = scaling(img);
-            pxNew = pixelCount(img);
-            img = fillGaps(img);
-            iteration++;
-        } while (!Objects.equals(pxNew, pxOld));
-        System.out.println("Количество итераций: " + iteration);*/
-        //img = rotation(img);
+        //img = fillGaps(img);    // -
+        //img = rotation(img);  // -
         //takeAngle(img);
         //houghLine(img);
-        //img = rot(img, 54.0);
+        //img = rot(img, -35.49);
         img = rot(img, takeAngleV2(img));
         convertArrayToImageAndWrite(img, "Result.png");
     }
@@ -178,24 +164,7 @@ public class Processing {
         Integer allPixels = matrixSizeX*matrixSizeY;
         System.out.println("allPixels: " + allPixels);
         Integer pixelCount = pixelCount(img);
-        Integer[] coordsOld = new Integer[4];
-        // Вычисления данных для образа
-        for(int y=0; y<matrixSizeY; y++)
-            for(int x=0; x<matrixSizeX; x++) {
-                if(img[y][x] != 0) {
-                    if (coordsOld[0] == null) {
-                        // Первое заполнение массивов с координатами
-                        coordsOld[0] = x; coordsOld[1] = y;
-                        coordsOld[2] = x; coordsOld[3] = y;
-                    } else {
-                        // Дальнейшее изменение координат образов
-                        if(x < coordsOld[0]) coordsOld[0] = x;
-                        if(y < coordsOld[1]) coordsOld[1] = y;
-                        if(x > coordsOld[2]) coordsOld[2] = x;
-                        if(y > coordsOld[3]) coordsOld[3] = y;
-                    }
-                }
-            }
+        Integer[] coordsOld = imgCoords(img);
         // Вычисление ширины и высоты старого образа
         int sizeOldX = coordsOld[2]-coordsOld[0]+1;
         int sizeOldY = coordsOld[3]-coordsOld[1]+1;
@@ -259,24 +228,7 @@ public class Processing {
         Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
         for(Integer[] row: resultingMatrix)
             Arrays.fill(row, 0);
-        Integer[] coordsOld = new Integer[4];
-        // Вычисления данных для образа
-        for(int y=0; y<matrixSizeY; y++)
-            for(int x=0; x<matrixSizeX; x++) {
-                if(img[y][x] != 0) {
-                    if (coordsOld[0] == null) {
-                        // Первое заполнение массивов с координатами
-                        coordsOld[0] = x; coordsOld[1] = y;
-                        coordsOld[2] = x; coordsOld[3] = y;
-                    } else {
-                        // Дальнейшее изменение координат образов
-                        if(x < coordsOld[0]) coordsOld[0] = x;
-                        if(y < coordsOld[1]) coordsOld[1] = y;
-                        if(x > coordsOld[2]) coordsOld[2] = x;
-                        if(y > coordsOld[3]) coordsOld[3] = y;
-                    }
-                }
-            }
+        Integer[] coordsOld = imgCoords(img);
         // Вычисление ширины и высоты старого образа
         int sizeOldX = coordsOld[2]-coordsOld[0]+1;
         int sizeOldY = coordsOld[3]-coordsOld[1]+1;
@@ -384,7 +336,7 @@ public class Processing {
                     }
                 }
             //printImg(resultingMatrix);
-            nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
+            //nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
         } catch (java.lang.ArrayIndexOutOfBoundsException e) {
             System.out.println("Данный образ нельзя масштабировать");
             resultingMatrix = img;
@@ -461,72 +413,55 @@ public class Processing {
     // Вторая версия метода для получения угла поворота по
     // четырём прямоугольным треугольникам
     public static double takeAngleV2(Integer[][] img) {
-        Integer matrixSizeY = img.length;
-        Integer matrixSizeX = img[0].length;
-
         // (x, y) левого верхнего угла и (x, y) правого нижнего угла образа
-        Integer[] coordsOld = new Integer[4];
-        // Вычисления данных для образа
-        for(int y=0; y<matrixSizeY; y++)
-            for(int x=0; x<matrixSizeX; x++) {
-                if(img[y][x] != 0) {
-                    if (coordsOld[0] == null) {
-                        // Первое заполнение массивов с координатами
-                        coordsOld[0] = x; coordsOld[1] = y;
-                        coordsOld[2] = x; coordsOld[3] = y;
-                    } else {
-                        // Дальнейшее изменение координат образов
-                        if(x < coordsOld[0]) coordsOld[0] = x;
-                        if(y < coordsOld[1]) coordsOld[1] = y;
-                        if(x > coordsOld[2]) coordsOld[2] = x;
-                        if(y > coordsOld[3]) coordsOld[3] = y;
-                    }
-                }
-            }
-        // Вычисление ширины и высоты старого образа
-        int sizeOldX = coordsOld[2]-coordsOld[0]+1;
-        int sizeOldY = coordsOld[3]-coordsOld[1]+1;
-
+        Integer[] coordsOld = imgCoords(img);
+        Integer sign = 0;
         Double[] angles = new Double[4];
-        // Две точки пересечения с прямоугольником для левого верхнего угла
-        System.out.print("Left Top: ");
-        Integer[] cornerLeftTop =
-                calculCoords(coordsOld[0], coordsOld[2], coordsOld[1], coordsOld[3], img);
-        angles[0] = angle(cornerLeftTop);
-        // Две точки пересечения с прямоугольником для правого верхнего угла
-        System.out.print("Right Top: ");
-        Integer[] cornerRightTop =
-                calculCoords(-coordsOld[2], coordsOld[0], coordsOld[1], coordsOld[3], img);
-        angles[1] = angle(cornerRightTop);
         // Две точки пересечения с прямоугольником для левого нижнего угла
         System.out.print("Left Bottom: ");
         Integer[] cornerLeftBottom =
                 calculCoords(coordsOld[0], coordsOld[2], -coordsOld[3], coordsOld[1], img);
-        angles[2] = angle(cornerLeftBottom);
+        angles[0] = angle(cornerLeftBottom);
+        sign += (Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5])-
+                Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4]));
+        // Две точки пересечения с прямоугольником для левого верхнего угла
+        System.out.print("Left Top: ");
+        Integer[] cornerLeftTop =
+                calculCoords(coordsOld[0], coordsOld[2], coordsOld[1], coordsOld[3], img);
+        angles[1] = angle(cornerLeftTop);
+        sign += (Math.abs(cornerLeftTop[0]-cornerLeftTop[4])-
+                Math.abs(cornerLeftTop[3]-cornerLeftTop[5]));
+        // Две точки пересечения с прямоугольником для правого верхнего угла
+        System.out.print("Right Top: ");
+        Integer[] cornerRightTop =
+                calculCoords(-coordsOld[2], coordsOld[0], coordsOld[1], coordsOld[3], img);
+        angles[2] = angle(cornerRightTop);
+        sign += (Math.abs(cornerRightTop[3]-cornerRightTop[5])-
+                Math.abs(cornerRightTop[0]-cornerRightTop[4]));
         // Две точки пересечения с прямоугольником для правого нижнего угла
         System.out.print("Right Bottom: ");
         Integer[] cornerRightBottom =
                 calculCoords(-coordsOld[2], coordsOld[0], -coordsOld[3], coordsOld[1], img);
         angles[3] = angle(cornerRightBottom);
+        sign += (Math.abs(cornerRightBottom[0]-cornerRightBottom[4])-
+                Math.abs(cornerRightBottom[3]-cornerRightBottom[5]));
 
-        System.out.println("Angle Left Top: " + angles[0]);
-        System.out.println("Angle Right Top: " + angles[1]);
-        System.out.println("Angle Left Bottom: " + angles[2]);
+        System.out.println("Angle Left Bottom: " + angles[0]);
+        System.out.println("Angle Left Top: " + angles[1]);
+        System.out.println("Angle Right Top: " + angles[2]);
         System.out.println("Angle Right Bottom: " + angles[3]);
-        boolean isPositive;
-        // Проверка, является ли нижний левый угол положительным или отрицательным
-        if(Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4])<Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5]))
-            isPositive = true;
-        else
-            isPositive = false;
-        System.out.println(isPositive);
+        System.out.println("Sign = " + sign);
+
         Arrays.sort(angles);
-        if(isPositive) {
+        if(sign > 0) {
             System.out.println("Angle: " + angles[0]);
             return angles[0];
-        } else {
+        } else if (sign < 0) {
             System.out.println("Angle: " + -angles[0]);
             return -angles[0];
+        } else {
+            System.out.println("Знак поворота не определён!!!");
+            return 0.0;
         }
     }
 
@@ -658,29 +593,10 @@ public class Processing {
 
         return 0.0;
     }
+
     // Метод Хафа для поиска линий
     public static double houghLine(Integer[][] img) {
-        Integer matrixSizeY = img.length;
-        Integer matrixSizeX = img[0].length;
-
-        Integer[] coordsOld = new Integer[4];
-        // Вычисления данных для образа
-        for(int y=0; y<matrixSizeY; y++)
-            for(int x=0; x<matrixSizeX; x++) {
-                if(img[y][x] != 0) {
-                    if (coordsOld[0] == null) {
-                        // Первое заполнение массивов с координатами
-                        coordsOld[0] = x; coordsOld[1] = y;
-                        coordsOld[2] = x; coordsOld[3] = y;
-                    } else {
-                        // Дальнейшее изменение координат образов
-                        if(x < coordsOld[0]) coordsOld[0] = x;
-                        if(y < coordsOld[1]) coordsOld[1] = y;
-                        if(x > coordsOld[2]) coordsOld[2] = x;
-                        if(y > coordsOld[3]) coordsOld[3] = y;
-                    }
-                }
-            }
+        Integer[] coordsOld = imgCoords(img);
         // Вычисление ширины и высоты старого образа
         int sizeOldX = coordsOld[2]-coordsOld[0]+1;
         int sizeOldY = coordsOld[3]-coordsOld[1]+1;
@@ -719,37 +635,6 @@ public class Processing {
             }
         }
         System.out.println(max + ", " + f);
-        // Точность
-        //Double accuracy = 0.1;
-        // Тройка (r, teta, счётчик)
-        // Может, не лист, а пары?
-        /*int diag = (int)Math.sqrt(sizeOldX*sizeOldX + sizeOldY*sizeOldY);
-        int[] arr = new int[diag];
-        for(int y=0; y<matrixSizeY; y++)
-            for(int x=0; x<matrixSizeX; x++) {
-                if (img[y][x] != 0) {
-                    for(int f=0; f<180; f+=1) {
-                        for(int r=0; r<diag; r++) {
-                            double teta = Math.toRadians(f);
-                            if((Math.abs((x+1)*Math.cos(teta) + (y+1)*Math.sin(teta)) - r) < accuracy)
-                                arr[r]++;
-                        }
-                    }
-                }
-            }
-        int max = 0;
-        double teta = 0.0;
-        int R = 0;
-        for(int f=0; f<180; f++) {
-            for(int r=0; r<diag; r++) {
-                if(arr[r]>max) {
-                    max = arr[r];
-                    teta = f;
-                    R = r;
-                }
-            }
-        }
-        System.out.println(max + ", " + teta + ", " + R);*/
         return 0.0;
     }
 
@@ -765,24 +650,7 @@ public class Processing {
         Integer txx = 0;
         Integer tyy = 0;
         Integer txy = 0;
-        Integer[] coordsOld = new Integer[4];
-        // Вычисления данных для образа
-        for(int y=0; y<matrixSizeY; y++)
-            for(int x=0; x<matrixSizeX; x++) {
-                if(img[y][x] != 0) {
-                    if (coordsOld[0] == null) {
-                        // Первое заполнение массивов с координатами
-                        coordsOld[0] = x; coordsOld[1] = y;
-                        coordsOld[2] = x; coordsOld[3] = y;
-                    } else {
-                        // Дальнейшее изменение координат образов
-                        if(x < coordsOld[0]) coordsOld[0] = x;
-                        if(y < coordsOld[1]) coordsOld[1] = y;
-                        if(x > coordsOld[2]) coordsOld[2] = x;
-                        if(y > coordsOld[3]) coordsOld[3] = y;
-                    }
-                }
-            }
+        Integer[] coordsOld = imgCoords(img);
         int coordX, coordY = 0;
         for(int y=0; y<matrixSizeY; y++) {
             for(int x=0; x<matrixSizeX; x++) {
@@ -918,5 +786,31 @@ public class Processing {
 
         Integer pixel = img[y][x];
         return pixel*clamp;
+    }
+
+    // Метод для получения координат образа на изображении.
+    // На выходе массив с координатами (x, y) левого верхнего пикселя образа и
+    // координатами (x, y) правого нижнего пикселя образа
+    public static Integer[] imgCoords(Integer[][] img) {
+        Integer matrixSizeY = img.length;
+        Integer matrixSizeX = img[0].length;
+        Integer[] coords = new Integer[4];
+        for(int y=0; y<matrixSizeY; y++)
+            for(int x=0; x<matrixSizeX; x++) {
+                if(img[y][x] != 0) {
+                    if (coords[0] == null) {
+                        // Первое заполнение массивов с координатами
+                        coords[0] = x; coords[1] = y;
+                        coords[2] = x; coords[3] = y;
+                    } else {
+                        // Дальнейшее изменение координат образов
+                        if(x < coords[0]) coords[0] = x;
+                        if(y < coords[1]) coords[1] = y;
+                        if(x > coords[2]) coords[2] = x;
+                        if(y > coords[3]) coords[3] = y;
+                    }
+                }
+            }
+        return coords;
     }
 }
