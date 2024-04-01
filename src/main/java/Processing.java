@@ -307,8 +307,8 @@ public class Processing {
     // На вход старый образ и его координаты, новый образ и его координаты
     // На выходе изменённый новый образ
     // coordsOld и coordsNew имеют следующую структуру: x min, y min, x max, y max
-    public static Integer[][] nearestNeighbourInterpolation (Integer[][] imgOld, Integer[] coordsOld,
-                                                             Integer[][] imgNew, Integer[] coordsNew) {
+    public static void nearestNeighbourInterpolation (Integer[][] imgOld, Integer[] coordsOld,
+                                                      Integer[][] imgNew, Integer[] coordsNew) {
         // Вычисление ширины и высоты старого образа
         int sizeOldX = coordsOld[2]-coordsOld[0]+1;
         int sizeOldY = coordsOld[3]-coordsOld[1]+1;
@@ -332,8 +332,44 @@ public class Processing {
                     // к стандартным координатам
                     imgNew[y][x] = imgOld[oldY + coordsOld[1]][oldX + coordsOld[0]];
                 }
+    }
 
-        return imgNew;
+    // Метод для поворота изображения, используя 4 найденных угла.
+    // Здесь выбирается наилучший угол для поворота, исходя из размера области,
+    // занимаемой образом. Чем меньше размер этой области, тем прямее
+    // расположен образ.
+    public static Integer[][] rotationNew(Integer[][] img) {
+        // Получаем возможные углы для поворота
+        Double[] angles = takeAngle(img);
+        Double bestAngle = 0.0;
+        // Если всего один возможный угол, то сразу на него и поворачиваем,
+        // иначе делаем перебор
+        if(angles.length != 1) {
+            // Вычисляем изначальные координаты образа и размер области
+            Integer[] coords = imgCoords(img);
+            int sectorSize = (coords[2]-coords[0]) + (coords[3]-coords[1]);
+            int size;
+            Integer[][] imgCopy;
+            System.out.println("Первичный размер сектора: " + sectorSize);
+            for (Double angle : angles) {
+                System.out.println("Угол: " + angle);
+                // Копирование образа и работа с копией
+                imgCopy = Arrays.stream(img).map(Integer[]::clone).toArray(Integer[][]::new);
+                imgCopy = rot(imgCopy, angle);
+                coords = imgCoords(imgCopy);
+                size = (coords[2] - coords[0]) + (coords[3] - coords[1]);
+                System.out.println("Размер сектора: " + size);
+                // Если новый размер области предыдущего, то угол считается лучше,
+                // если новый размер больше предыдущего, то процесс прекращается
+                if (size < sectorSize) {
+                    sectorSize = size;
+                    bestAngle = angle;
+                } else if (size > sectorSize)
+                    break;
+            }
+        }
+        System.out.println("Итоговый угол поворота: " + bestAngle);
+        return rot(img, bestAngle);
     }
 
     // Метода для получения угла поворота по
@@ -345,36 +381,36 @@ public class Processing {
     // Далее вычисляем наименьший угол в треугольнике. Таким образом получаем 4 угла.
     // Для определения знака поворота используем сумму разниц длин катетов прямоугольных треугольников.
     // Берём меньший из четырёх углов и ставим получившийся знак.
-    public static double takeAngle(Integer[][] img) {
+    public static Double[] takeAngle(Integer[][] img) {
         // (x, y) левого верхнего угла и (x, y) правого нижнего угла образа
-        Integer[] coordsOld = imgCoords(img);
+        Integer[] coords = imgCoords(img);
         Integer sign = 0;
         Double[] angles = new Double[4];
         // Две точки пересечения с прямоугольником для левого нижнего угла
         System.out.print("Left Bottom: ");
         Integer[] cornerLeftBottom =
-                calculCoords(coordsOld[0], coordsOld[2], -coordsOld[3], coordsOld[1], img);
+                calculCoords(coords[0], coords[2], -coords[3], coords[1], img);
         angles[0] = angle(cornerLeftBottom);
         sign += (Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5])-
                 Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4]));
         // Две точки пересечения с прямоугольником для левого верхнего угла
         System.out.print("Left Top: ");
         Integer[] cornerLeftTop =
-                calculCoords(coordsOld[0], coordsOld[2], coordsOld[1], coordsOld[3], img);
+                calculCoords(coords[0], coords[2], coords[1], coords[3], img);
         angles[1] = angle(cornerLeftTop);
         sign += (Math.abs(cornerLeftTop[0]-cornerLeftTop[4])-
                 Math.abs(cornerLeftTop[3]-cornerLeftTop[5]));
         // Две точки пересечения с прямоугольником для правого верхнего угла
         System.out.print("Right Top: ");
         Integer[] cornerRightTop =
-                calculCoords(-coordsOld[2], coordsOld[0], coordsOld[1], coordsOld[3], img);
+                calculCoords(-coords[2], coords[0], coords[1], coords[3], img);
         angles[2] = angle(cornerRightTop);
         sign += (Math.abs(cornerRightTop[3]-cornerRightTop[5])-
                 Math.abs(cornerRightTop[0]-cornerRightTop[4]));
         // Две точки пересечения с прямоугольником для правого нижнего угла
         System.out.print("Right Bottom: ");
         Integer[] cornerRightBottom =
-                calculCoords(-coordsOld[2], coordsOld[0], -coordsOld[3], coordsOld[1], img);
+                calculCoords(-coords[2], coords[0], -coords[3], coords[1], img);
         angles[3] = angle(cornerRightBottom);
         sign += (Math.abs(cornerRightBottom[0]-cornerRightBottom[4])-
                 Math.abs(cornerRightBottom[3]-cornerRightBottom[5]));
@@ -386,16 +422,16 @@ public class Processing {
         System.out.println("Sign = " + sign);
 
         Arrays.sort(angles);
-        if(sign > 0) {
-            System.out.println("Angle: " + angles[0]);
-            return angles[0];
-        } else if (sign < 0) {
-            System.out.println("Angle: " + -angles[0]);
-            return -angles[0];
-        } else {
-            System.out.println("Знак поворота не определён!!!");
-            return 0.0;
+        if(angles[0] < 1.0 || sign == 0) {
+            System.out.println("Угол поворота не определён!!!");
+            return new Double[]{0.0};
         }
+
+        if(sign < 0) {
+            for(int i=0; i<angles.length; i++)
+                angles[i] = -angles[i];
+        }
+        return angles;
     }
 
     // Метод для вычисления координат вершин прямоугольного треугольника

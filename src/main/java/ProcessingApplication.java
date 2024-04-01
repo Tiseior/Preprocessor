@@ -6,9 +6,9 @@ public class ProcessingApplication {
 
     public static void main(String[] args) throws IOException {
 
-        preprocImg("\\A\\microA.png");
-        //Processing.preprocImg("\\Result.png");
-        //Processing.preprocImg(images.test10_0);
+        preprocImg("\\G\\G228.png");
+        //preprocImg("\\text1.png");
+        //preprocImg(images.test10_0);
 
     }
 
@@ -24,7 +24,8 @@ public class ProcessingApplication {
         //img = Processing.rotation(img);  // -
         //Processing.takeAngle(img);
         //img = Processing.rot(img, -35.49);
-        img = Processing.rot(img, Processing.takeAngle(img));
+        //img = Processing.rot(img, Processing.takeAngle(img));
+        img = Processing.rotationNew(img);
         Processing.convertArrayToImageAndWrite(img, "Result.png");
     }
 
