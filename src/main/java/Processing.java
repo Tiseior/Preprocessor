@@ -34,7 +34,7 @@ public class Processing {
             }
             return imgData;
         } catch (IOException e) {
-            System.out.println("Изображение не найдено");
+            System.out.println("Image not found");
             Integer[][] imgData = new Integer[0][0];
             return imgData;
         }
@@ -342,20 +342,21 @@ public class Processing {
         // Получаем возможные углы для поворота
         Double[] angles = takeAngle(img);
         Double bestAngle = 0.0;
-        // Если всего один возможный угол, то сразу на него и поворачиваем,
-        // иначе делаем перебор
-        if(angles.length != 1) {
-            // Вычисляем изначальные координаты образа и размер области
-            Integer[] coords = imgCoords(img);
-            int sectorSize = (coords[2]-coords[0]) + (coords[3]-coords[1]);
-            int size;
-            Integer[][] imgCopy;
-            System.out.println("Первичный размер сектора: " + sectorSize);
-            for (Double angle : angles) {
-                System.out.println("Угол: " + angle);
+        System.out.println("Всего углов: " + angles.length);
+        long startTime = System.nanoTime();
+        // Вычисляем изначальные координаты образа и размер области
+        Integer[] coords = imgCoords(img);
+        int sectorSize = (coords[2]-coords[0]) + (coords[3]-coords[1]);
+        int size;
+        Integer[][] imgCopy = new Integer[img.length][img[0].length];
+        System.out.println("Первичный размер сектора: " + sectorSize);
+        for (int ang=0; ang<angles.length; ang++) {
+            if(Math.abs(angles[ang]) > 0.001) {
+                System.out.println("Угол: " + angles[ang]);
                 // Копирование образа и работа с копией
-                imgCopy = Arrays.stream(img).map(Integer[]::clone).toArray(Integer[][]::new);
-                imgCopy = rot(imgCopy, angle);
+                for(int i=0; i<img.length; i++)
+                    System.arraycopy(img[i], 0, imgCopy[i], 0, img[0].length);
+                imgCopy = rot(imgCopy, angles[ang]);
                 coords = imgCoords(imgCopy);
                 size = (coords[2] - coords[0]) + (coords[3] - coords[1]);
                 System.out.println("Размер сектора: " + size);
@@ -363,13 +364,20 @@ public class Processing {
                 // если новый размер больше предыдущего, то процесс прекращается
                 if (size < sectorSize) {
                     sectorSize = size;
-                    bestAngle = angle;
+                    bestAngle = angles[ang];
                 } else if (size > sectorSize)
-                    break;
+                    // Первое условие для нестабильного знака, чтобы можно было
+                    // проверить пару углов с разными знаками
+                    if((angles.length==8 && (ang+1)%2==0) || angles.length==4)
+                        break;
             }
         }
+        long endTime = System.nanoTime();
+        System.out.println("Время: " + (endTime - startTime));
         System.out.println("Итоговый угол поворота: " + bestAngle);
-        return rot(img, bestAngle);
+        if(Math.abs(bestAngle) > 0.001)
+            img = rot(img, bestAngle);
+        return img;
     }
 
     // Метода для получения угла поворота по
@@ -384,37 +392,49 @@ public class Processing {
     public static Double[] takeAngle(Integer[][] img) {
         // (x, y) левого верхнего угла и (x, y) правого нижнего угла образа
         Integer[] coords = imgCoords(img);
+        int sizeX = coords[2]-coords[0];
+        int sizeY = coords[3]-coords[1];
+        System.out.println("Размер по X:" + sizeX);
+        System.out.println("Размер по Y:" + sizeY);
         Integer sign = 0;
-        Double[] angles = new Double[4];
+
         // Две точки пересечения с прямоугольником для левого нижнего угла
         System.out.print("Left Bottom: ");
         Integer[] cornerLeftBottom =
                 calculCoords(coords[0], coords[2], -coords[3], coords[1], img);
-        angles[0] = angle(cornerLeftBottom);
         sign += (Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5])-
                 Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4]));
         // Две точки пересечения с прямоугольником для левого верхнего угла
         System.out.print("Left Top: ");
         Integer[] cornerLeftTop =
                 calculCoords(coords[0], coords[2], coords[1], coords[3], img);
-        angles[1] = angle(cornerLeftTop);
         sign += (Math.abs(cornerLeftTop[0]-cornerLeftTop[4])-
                 Math.abs(cornerLeftTop[3]-cornerLeftTop[5]));
         // Две точки пересечения с прямоугольником для правого верхнего угла
         System.out.print("Right Top: ");
         Integer[] cornerRightTop =
                 calculCoords(-coords[2], coords[0], coords[1], coords[3], img);
-        angles[2] = angle(cornerRightTop);
         sign += (Math.abs(cornerRightTop[3]-cornerRightTop[5])-
                 Math.abs(cornerRightTop[0]-cornerRightTop[4]));
         // Две точки пересечения с прямоугольником для правого нижнего угла
         System.out.print("Right Bottom: ");
         Integer[] cornerRightBottom =
                 calculCoords(-coords[2], coords[0], -coords[3], coords[1], img);
-        angles[3] = angle(cornerRightBottom);
         sign += (Math.abs(cornerRightBottom[0]-cornerRightBottom[4])-
                 Math.abs(cornerRightBottom[3]-cornerRightBottom[5]));
-
+        int n = 4;
+        // Если значение знака меньше половины наименьшей стороны, то
+        // знак считается нестабильным, поэтому углы дублируются
+        if(Math.abs(sign) < (Math.min(sizeX, sizeY)/2))
+            n = 8;
+        Double[] angles = new Double[n];
+        angles[0] = angle(cornerLeftBottom);
+        angles[1] = angle(cornerLeftTop);
+        angles[2] = angle(cornerRightTop);
+        angles[3] = angle(cornerRightBottom);
+        // Дублирование углов при нестабильном знаке
+        if(n == 8)
+            System.arraycopy(angles, 0, angles, 4, 4);
         System.out.println("Angle Left Bottom: " + angles[0]);
         System.out.println("Angle Left Top: " + angles[1]);
         System.out.println("Angle Right Top: " + angles[2]);
@@ -422,15 +442,12 @@ public class Processing {
         System.out.println("Sign = " + sign);
 
         Arrays.sort(angles);
-        if(angles[0] < 1.0 || sign == 0) {
-            System.out.println("Угол поворота не определён!!!");
-            return new Double[]{0.0};
-        }
-
-        if(sign < 0) {
+        if(sign < 0 && n == 4) {
             for(int i=0; i<angles.length; i++)
                 angles[i] = -angles[i];
-        }
+        } else if(n == 8)
+            for(int i=1; i<angles.length; i+=2)
+                angles[i] = -angles[i];
         return angles;
     }
 

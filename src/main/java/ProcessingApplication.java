@@ -6,7 +6,7 @@ public class ProcessingApplication {
 
     public static void main(String[] args) throws IOException {
 
-        preprocImg("\\G\\G228.png");
+        preprocImg("\\U\\U168.png");
         //preprocImg("\\text1.png");
         //preprocImg(images.test10_0);
 
@@ -16,17 +16,19 @@ public class ProcessingApplication {
     public static void preprocImg(String imgName) throws IOException {
         File file = new File(images.path+imgName);
         Integer[][] img = Processing.readAndConvertImageToArray(file);
-        //img = Processing.translation(img); // -
-        //img = Processing.scaling(img);     // -
-        img = Processing.scalingNew(img);
-        img = Processing.translation(img);
-        //img = Processing.fillGaps(img);    // -
-        //img = Processing.rotation(img);  // -
-        //Processing.takeAngle(img);
-        //img = Processing.rot(img, -35.49);
-        //img = Processing.rot(img, Processing.takeAngle(img));
-        img = Processing.rotationNew(img);
-        Processing.convertArrayToImageAndWrite(img, "Result.png");
+        if(img.length != 0) {
+            //img = Processing.translation(img); // -
+            //img = Processing.scaling(img);     // -
+            img = Processing.scalingNew(img);
+            img = Processing.translation(img);
+            //img = Processing.fillGaps(img);    // -
+            //img = Processing.rotation(img);  // -
+            //Processing.takeAngle(img);
+            //img = Processing.rot(img, -35.49);
+            //img = Processing.rot(img, Processing.takeAngle(img));
+            img = Processing.rotationNew(img);
+            Processing.convertArrayToImageAndWrite(img, "Result.png");
+        }
     }
 
     // –абота с образом в виде двумерного массива
