@@ -26,8 +26,8 @@ public class Processing {
             Integer[][] imgData = new Integer[height][width];
             for(int i=0; i<height*width; i++) {
                 int elem = blackAndWhiteImg.getRGB(i/height, i%height);
-                // Тусклые пиксели делаем нулевыми
-                if (elem > -2550000)
+                // Тусклые пиксели делаем нулевыми -4610000
+                if (elem > -4610000)
                     imgData[i%height][i/height] = 0;
                 else
                     imgData[i%height][i/height] = 1; // Здесь можно заменить на elem или 1
@@ -350,26 +350,31 @@ public class Processing {
         int size;
         Integer[][] imgCopy = new Integer[img.length][img[0].length];
         System.out.println("Первичный размер сектора: " + sectorSize);
-        for (int ang=0; ang<angles.length; ang++) {
-            if(Math.abs(angles[ang]) > 0.001) {
-                System.out.println("Угол: " + angles[ang]);
+        // Отклонение для вычисления размера сектора
+        // Отклонение составляет 1% от исходного размера сектора
+        int deviation = sectorSize/100;
+        System.out.println("Возможное отклонение размера сектора: " + deviation);
+        for (Double angle : angles) {
+            if (Math.abs(angle) > 0.001) {
+                System.out.println("Угол: " + angle);
                 // Копирование образа и работа с копией
-                for(int i=0; i<img.length; i++)
+                for (int i = 0; i < img.length; i++)
                     System.arraycopy(img[i], 0, imgCopy[i], 0, img[0].length);
-                imgCopy = rot(imgCopy, angles[ang]);
+                imgCopy = rot(imgCopy, angle);
                 coords = imgCoords(imgCopy);
                 size = (coords[2] - coords[0]) + (coords[3] - coords[1]);
                 System.out.println("Размер сектора: " + size);
-                // Если новый размер области предыдущего, то угол считается лучше,
-                // если новый размер больше предыдущего, то процесс прекращается
-                if (size < sectorSize) {
+                // Выбирается угол, если:
+                // 1) Новый сектор меньше предыдущего
+                // 2) Угол ранее не выбран и новый сектор меньше или равен предыдущему
+                // 3) Угол ранее не выбран и новый сектор больше предыдущего
+                //    не более чем на величину отклонения
+                if (size < sectorSize
+                        || (bestAngle == 0.0 && size <= sectorSize)
+                        || (bestAngle == 0.0 && size - sectorSize <= deviation)) {
                     sectorSize = size;
-                    bestAngle = angles[ang];
-                } else if (size > sectorSize)
-                    // Первое условие для нестабильного знака, чтобы можно было
-                    // проверить пару углов с разными знаками
-                    if((angles.length==8 && (ang+1)%2==0) || angles.length==4)
-                        break;
+                    bestAngle = angle;
+                }
             }
         }
         long endTime = System.nanoTime();
@@ -397,44 +402,37 @@ public class Processing {
         System.out.println("Размер по X:" + sizeX);
         System.out.println("Размер по Y:" + sizeY);
         Integer sign = 0;
+        Double[] angles = new Double[4];
 
         // Две точки пересечения с прямоугольником для левого нижнего угла
         System.out.print("Left Bottom: ");
         Integer[] cornerLeftBottom =
                 calculCoords(coords[0], coords[2], -coords[3], coords[1], img);
-        sign += (Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5])-
-                Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4]));
+        sign = Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5]) -
+                (Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4]));
+        angles[0] = (sign < 0) ? -angle(cornerLeftBottom) : angle(cornerLeftBottom);
         // Две точки пересечения с прямоугольником для левого верхнего угла
         System.out.print("Left Top: ");
         Integer[] cornerLeftTop =
                 calculCoords(coords[0], coords[2], coords[1], coords[3], img);
-        sign += (Math.abs(cornerLeftTop[0]-cornerLeftTop[4])-
-                Math.abs(cornerLeftTop[3]-cornerLeftTop[5]));
+        sign = Math.abs(cornerLeftTop[0]-cornerLeftTop[4]) -
+                (Math.abs(cornerLeftTop[3]-cornerLeftTop[5]));
+        angles[1] = (sign < 0) ? -angle(cornerLeftTop) : angle(cornerLeftTop);
         // Две точки пересечения с прямоугольником для правого верхнего угла
         System.out.print("Right Top: ");
         Integer[] cornerRightTop =
                 calculCoords(-coords[2], coords[0], coords[1], coords[3], img);
-        sign += (Math.abs(cornerRightTop[3]-cornerRightTop[5])-
-                Math.abs(cornerRightTop[0]-cornerRightTop[4]));
+        sign = Math.abs(cornerRightTop[3]-cornerRightTop[5]) -
+                (Math.abs(cornerRightTop[0]-cornerRightTop[4]));
+        angles[2] = (sign < 0) ? -angle(cornerRightTop) : angle(cornerRightTop);
         // Две точки пересечения с прямоугольником для правого нижнего угла
         System.out.print("Right Bottom: ");
         Integer[] cornerRightBottom =
                 calculCoords(-coords[2], coords[0], -coords[3], coords[1], img);
-        sign += (Math.abs(cornerRightBottom[0]-cornerRightBottom[4])-
-                Math.abs(cornerRightBottom[3]-cornerRightBottom[5]));
-        int n = 4;
-        // Если значение знака меньше половины наименьшей стороны, то
-        // знак считается нестабильным, поэтому углы дублируются
-        if(Math.abs(sign) < (Math.min(sizeX, sizeY)/2))
-            n = 8;
-        Double[] angles = new Double[n];
-        angles[0] = angle(cornerLeftBottom);
-        angles[1] = angle(cornerLeftTop);
-        angles[2] = angle(cornerRightTop);
-        angles[3] = angle(cornerRightBottom);
-        // Дублирование углов при нестабильном знаке
-        if(n == 8)
-            System.arraycopy(angles, 0, angles, 4, 4);
+        sign = Math.abs(cornerRightBottom[0]-cornerRightBottom[4]) -
+                (Math.abs(cornerRightBottom[3]-cornerRightBottom[5]));
+        angles[3] = (sign < 0) ? -angle(cornerRightBottom) : angle(cornerRightBottom);
+
         System.out.println("Angle Left Bottom: " + angles[0]);
         System.out.println("Angle Left Top: " + angles[1]);
         System.out.println("Angle Right Top: " + angles[2]);
@@ -442,12 +440,6 @@ public class Processing {
         System.out.println("Sign = " + sign);
 
         Arrays.sort(angles);
-        if(sign < 0 && n == 4) {
-            for(int i=0; i<angles.length; i++)
-                angles[i] = -angles[i];
-        } else if(n == 8)
-            for(int i=1; i<angles.length; i+=2)
-                angles[i] = -angles[i];
         return angles;
     }
 
@@ -485,7 +477,7 @@ public class Processing {
         double hypo = Math.sqrt((triangle[0]-triangle[2])*(triangle[0]-triangle[2]) +
                 (triangle[1]-triangle[3])*(triangle[1]-triangle[3]));
         // Малый катет прямоугольного треугольника
-        double leg = Math.sqrt((triangle[0] - triangle[2])*(triangle[0] - triangle[2]));
+        double leg = Math.min(Math.abs(triangle[0]-triangle[2]), Math.abs(triangle[1]-triangle[3]));
         // Вычисление угла поворота
         double angle = Math.toDegrees(Math.asin(leg/hypo));
         return angle;
@@ -579,37 +571,24 @@ public class Processing {
         Integer matrixSizeX = img[0].length; // Ширина
 
         Double radians = angle/180.0 * Math.PI;
-        Double S = Math.sin(radians);
-        Double C = Math.cos(radians);
 
-        Double a = matrixSizeX/2*C;
-        Double b = matrixSizeY/2*S;
-        Double c = matrixSizeY/2*C;
-        Double d = matrixSizeX/2*S;
-
-        //Integer outputWidth  = (int)Math.round(Math.max(Math.max(-a+b, a+b), Math.max(-a-b, a-b)) * 2.0);
-        //Integer outputHeight = (int)Math.round(Math.max(Math.max(-c+d, c+d), Math.max(-c-d, c-d)) * 2.0);
-        Integer outputWidth = matrixSizeX;
-        Integer outputHeight = matrixSizeY;
-        Integer[][] resultingMatrix = new Integer[outputHeight][outputWidth];
+        Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
         for(Integer[] row: resultingMatrix)
             Arrays.fill(row, 0);
 
-        S = Math.sin(-radians);
-        C = Math.cos(-radians);
+        Double S = Math.sin(-radians);
+        Double C = Math.cos(-radians);
 
-        for (int outy=0; outy<outputHeight; outy++) {
-            for (int outx=0; outx<outputWidth; outx++) {
-                Double cox = outx - outputWidth/2.0+1;
-                Double coy = outy - outputHeight/2.0+1;
+        for (int outy = 0; outy< matrixSizeY; outy++) {
+            for (int outx = 0; outx< matrixSizeX; outx++) {
+                Double cox = outx - matrixSizeX /2.0+1;
+                Double coy = outy - matrixSizeY /2.0+1;
 
                 Double inx = cox*C-coy*S + matrixSizeX/2;
                 Double iny = coy*C+cox*S + matrixSizeY/2;
 
                 Integer basex = inx.intValue();
-                Double tx     = inx - basex;
                 Integer basey = iny.intValue();
-                Double ty     = iny -basey;
                 resultingMatrix[outy][outx] = sampleAt(img, basex, basey);
             }
         }
