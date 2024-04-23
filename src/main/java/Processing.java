@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 public class Processing {
 
-    public static Images images = new Images();
+    public static Config config = new Config();
 
     // „тение изображени€ из файла
     // ѕреобразование изображени€ в двумерный целочисленный массив со значени€ми элементов:
@@ -43,7 +43,7 @@ public class Processing {
     // ѕреобразование двумерного целочисленного массива в изображение с расширением .png
     // со значени€ми пикселей: -1 - белый пиксель, 0 - чЄрный пиксель
     // «апись полученного изображени€ в директорию с изображени€ми с заданным именем
-    public static void convertArrayToImageAndWrite(Integer[][] img, String name) throws IOException {
+    public static BufferedImage convertArrayToImageAndWrite(Integer[][] img) throws IOException {
         BufferedImage newImage = new BufferedImage(img[0].length, img.length, BufferedImage.TYPE_INT_RGB);
         for(int i=0; i<img.length; i++){
             for (int j=0; j<img[0].length; j++){
@@ -54,8 +54,7 @@ public class Processing {
                     newImage.setRGB(j, i, 0); // «десь можно заменить на elem или 0
             }
         }
-        File output = new File(images.path+name);
-        ImageIO.write(newImage, "png", output);
+        return newImage;
     }
 
     // ¬ывод образа
