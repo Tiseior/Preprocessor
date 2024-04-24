@@ -72,6 +72,11 @@ public class Processing {
         }
     }
 
+    public static void recordInformation(String info) {
+        if(Config.infoWindow)
+            Config.infoStr += info + "\n";
+    }
+
     // Количество единичных пикселей
     public static Integer pixelCount(Integer[][] img) {
         Integer pixelCount = 0; // Количество не нулевых пикселей
@@ -110,6 +115,10 @@ public class Processing {
 
     // Центрирование образа
     public static Integer[][] translation(Integer[][] img) {
+        recordInformation("Выполнение трансляции");
+        Integer[] coords = imgCoords(img);
+        recordInformation("Координаты углов образа: (" + coords[0] + "; " + coords[1] + "), (" +
+                coords[2] + "; " + coords[3] + ")");
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
         Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
@@ -143,12 +152,18 @@ public class Processing {
                 if(elem != 0)
                     resultingMatrix[y+shiftY][x+shiftX] = elem;
             }
+        coords = imgCoords(resultingMatrix);
+        recordInformation("Координаты углов образа: (" + coords[0] + "; " + coords[1] + "), (" +
+                coords[2] + "; " + coords[3] + ")");
+        recordInformation("Трансляция выполнена\n");
 
         return resultingMatrix;
     }
 
     // Подобранный алгоритм масштабирования
     public static Integer[][] scalingNew(Integer[][] img) {
+        recordInformation("Выполнение масштабирования");
+        recordInformation("Количество пикселей в образе: " + pixelCount(img));
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
         Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
@@ -171,6 +186,8 @@ public class Processing {
             System.out.println("new: " + (coordsNew[i]));
         }
         nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
+        recordInformation("Количество пикселей в образе: " + pixelCount(resultingMatrix));
+        recordInformation("Масштабирование выполнено\n");
 
         return resultingMatrix;
     }
@@ -338,23 +355,39 @@ public class Processing {
     // занимаемой образом. Чем меньше размер этой области, тем прямее
     // расположен образ.
     public static Integer[][] rotationNew(Integer[][] img) {
+        recordInformation("Выполнение ротации");
+
+        // Если отключен автоповорот
+        if(!Config.rotAuto) {
+            recordInformation("Поворот на угол: " + Config.angle);
+            img = rot(img, Config.angle);
+            recordInformation("Ротация выполнена\n");
+            return img;
+        }
+
         // Получаем возможные углы для поворота
         Double[] angles = takeAngle(img);
+        recordInformation("Левый нижний угол: " + angles[0]);
+        recordInformation("Левый верхний угол: " + angles[1]);
+        recordInformation("Правый верхний угол: " + angles[2]);
+        recordInformation("Правый нижний угол: " + angles[3]);
         Double bestAngle = 0.0;
         System.out.println("Всего углов: " + angles.length);
-        long startTime = System.nanoTime();
         // Вычисляем изначальные координаты образа и размер области
         Integer[] coords = imgCoords(img);
         int sectorSize = (coords[2]-coords[0]) + (coords[3]-coords[1]);
         int size;
         Integer[][] imgCopy = new Integer[img.length][img[0].length];
+        recordInformation("Первичный размер сектора: " + sectorSize);
         System.out.println("Первичный размер сектора: " + sectorSize);
         // Отклонение для вычисления размера сектора
         // Отклонение составляет 1% от исходного размера сектора
         int deviation = sectorSize/100;
+        recordInformation("Возможное отклонение размера сектора: " + deviation);
         System.out.println("Возможное отклонение размера сектора: " + deviation);
         for (Double angle : angles) {
             if (Math.abs(angle) > 0.001) {
+                recordInformation("Угол: " + angle);
                 System.out.println("Угол: " + angle);
                 // Копирование образа и работа с копией
                 for (int i = 0; i < img.length; i++)
@@ -362,6 +395,7 @@ public class Processing {
                 imgCopy = rot(imgCopy, angle);
                 coords = imgCoords(imgCopy);
                 size = (coords[2] - coords[0]) + (coords[3] - coords[1]);
+                recordInformation("Размер сектора: " + size);
                 System.out.println("Размер сектора: " + size);
                 // Выбирается угол, если:
                 // 1) Новый сектор меньше предыдущего
@@ -376,11 +410,11 @@ public class Processing {
                 }
             }
         }
-        long endTime = System.nanoTime();
-        System.out.println("Время: " + (endTime - startTime));
+        recordInformation("Итоговый угол поворота: " + bestAngle);
         System.out.println("Итоговый угол поворота: " + bestAngle);
         if(Math.abs(bestAngle) > 0.001)
             img = rot(img, bestAngle);
+        recordInformation("Ротация выполнена\n");
         return img;
     }
 

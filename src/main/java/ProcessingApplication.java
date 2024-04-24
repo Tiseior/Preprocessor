@@ -29,7 +29,7 @@ public class ProcessingApplication {
         // Остановить приложение при закрытии
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //frame.setResizable(false); // Не изменять размер
-        mainFrame.setSize(800, 400); // Размер окна
+        mainFrame.setSize(700, 400); // Размер окна
         mainFrame.setLocationRelativeTo(null); // Окно в центре экрана
 
         // Создание основной панели для расположения всех элементов
@@ -41,9 +41,9 @@ public class ProcessingApplication {
 
         // Создание панели для открытого изображения
         JPanel panelImgOpen = new JPanel(new BorderLayout());
-        constraintsMainPanel.ipadx = 120;
-        constraintsMainPanel.ipady = 130;
-        panelImgOpen.setPreferredSize(new Dimension(120, 130));
+        constraintsMainPanel.ipadx = 130;
+        constraintsMainPanel.ipady = 140;
+        panelImgOpen.setPreferredSize(new Dimension(130, 140));
         constraintsMainPanel.weighty = 5;
         constraintsMainPanel.insets.top = 5;
         constraintsMainPanel.gridx = 0;
@@ -53,15 +53,17 @@ public class ProcessingApplication {
         // Создание панели для результирующего изображения
         JPanel panelImgResult = new JPanel(new BorderLayout());
         constraintsMainPanel.gridx = 2;
-        panelImgResult.setPreferredSize(new Dimension(120, 130));
+        panelImgResult.setPreferredSize(new Dimension(130, 140));
         mainPanel.add(panelImgResult, constraintsMainPanel);
 
         // Создание центральной панели
         JPanel panelArrow = new JPanel(new GridLayout());
         constraintsMainPanel.gridx = 1;
-        panelArrow.setPreferredSize(new Dimension(120, 130));
+        panelArrow.setPreferredSize(new Dimension(10, 140));
+        //panelArrow.setBackground(new Color(93, 118, 203));
         mainPanel.add(panelArrow, constraintsMainPanel);
-        final JLabel arrowElem = new JLabel("<html><h1>=></html>", SwingConstants.CENTER);
+        final JLabel arrowElem = new JLabel("<html><p style=\"font-size: 800%\">&#10140;</p></html>",
+                SwingConstants.CENTER);
         panelArrow.add(arrowElem);
 
         // Создание области для открытого изображения
@@ -84,7 +86,7 @@ public class ProcessingApplication {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Выбор изображения для преобразования
-                JFileChooser fileChooser = new JFileChooser(config.path);
+                JFileChooser fileChooser = new JFileChooser(Config.path);
                 FileNameExtensionFilter filterJPG = new FileNameExtensionFilter("JPG(*.jpg)", "jpg");
                 fileChooser.setFileFilter(filterJPG);
                 FileNameExtensionFilter filterPNG = new FileNameExtensionFilter("PNG(*.png)", "png");
@@ -96,13 +98,14 @@ public class ProcessingApplication {
                         imgName = fileChooser.getSelectedFile().toString();
                         openPic = ImageIO.read(fileChooser.getSelectedFile());
                         // Коэффициент сжатия изображения для вывода в интерфейсе
-                        picCoef = 200.0/Math.max(openPic.getWidth(), openPic.getHeight());
+                        picCoef = 250.0/Math.max(openPic.getWidth(), openPic.getHeight());
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                     Image readImg = openPic.getScaledInstance((int) (openPic.getWidth()*picCoef),
                             (int) (openPic.getHeight()*picCoef), Image.SCALE_SMOOTH);
                     openImg.setIcon(new ImageIcon(readImg));
+                    resultImg.setIcon(new ImageIcon());
                 }
 
             }
@@ -114,41 +117,52 @@ public class ProcessingApplication {
         saveImg.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Сохранение результирующего изображения
-                JFileChooser fileChooser = new JFileChooser(config.path);
-                FileNameExtensionFilter filterJPG = new FileNameExtensionFilter("JPG(*.jpg)", "jpg");
-                fileChooser.setFileFilter(filterJPG);
-                FileNameExtensionFilter filterPNG = new FileNameExtensionFilter("PNG(*.png)", "png");
-                fileChooser.setFileFilter(filterPNG);
-                int result = fileChooser.showSaveDialog(fileChooser);
-                if (result == JFileChooser.APPROVE_OPTION ) {
-                    try {
-                        String saveFile = fileChooser.getSelectedFile().toString();
-                        String fileType = fileChooser.getFileFilter().getDescription();
-                        if(Objects.equals(fileType, "JPG(*.jpg)"))
-                            fileType = ".jpg";
-                        else if(Objects.equals(fileType, "PNG(*.png)"))
-                            fileType = ".png";
-                        else if(Objects.equals(fileType, "All Files"))
-                            if(saveFile.lastIndexOf(".") != -1)
-                                fileType = "";
-                            else
+                if(resultImg.getIcon().getIconHeight() == -1)
+                    JOptionPane.showMessageDialog(mainFrame,
+                            "Результирующее изображение не найдено",
+                            "404", JOptionPane.ERROR_MESSAGE);
+                else {
+                    // Сохранение результирующего изображения
+                    JFileChooser fileChooser = new JFileChooser(Config.path);
+                    FileNameExtensionFilter filterJPG =
+                            new FileNameExtensionFilter("JPG(*.jpg)", "jpg");
+                    fileChooser.setFileFilter(filterJPG);
+                    FileNameExtensionFilter filterPNG =
+                            new FileNameExtensionFilter("PNG(*.png)", "png");
+                    fileChooser.setFileFilter(filterPNG);
+                    int result = fileChooser.showSaveDialog(fileChooser);
+                    if (result == JFileChooser.APPROVE_OPTION ) {
+                        try {
+                            String saveFile = fileChooser.getSelectedFile().toString();
+                            String fileType = fileChooser.getFileFilter().getDescription();
+                            if(Objects.equals(fileType, "JPG(*.jpg)"))
+                                fileType = ".jpg";
+                            else if(Objects.equals(fileType, "PNG(*.png)"))
                                 fileType = ".png";
-                        saveFile += fileType;
-                        File output = new File(saveFile);
-                        ImageIO.write(resImage, saveFile.substring(saveFile.lastIndexOf(".")+1), output);
-                        JOptionPane.showMessageDialog(fileChooser,
+                            else if(Objects.equals(fileType, "All Files"))
+                                if(saveFile.lastIndexOf(".") != -1)
+                                    fileType = "";
+                                else
+                                    fileType = ".png";
+                            saveFile += fileType;
+                            File output = new File(saveFile);
+                            ImageIO.write(resImage,
+                                    saveFile.substring(saveFile.lastIndexOf(".")+1), output);
+                            JOptionPane.showMessageDialog(fileChooser,
                                     "Файл (" + saveFile + ") сохранен");
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
             }
         });
         panelImgResult.add(saveImg, BorderLayout.NORTH);
 
+        JTextArea informationText = new JTextArea(20, 28);
         // Создание кнопки для преобразования
-        JButton processing = new JButton("Преобразовать");
+        JButton processing = new JButton("<html><font size=4>Преобразовать</html>");
+        processing.setMargin(new Insets(5, 10, 5, 10));
         constraintsMainPanel.ipadx = 0;
         constraintsMainPanel.ipady = 0;
         constraintsMainPanel.gridx = 0;
@@ -159,10 +173,20 @@ public class ProcessingApplication {
             public void actionPerformed(ActionEvent e) {
                 // Запуск препроцессора и отображение результата
                 try {
-                    resImage = preprocImg(imgName);
-                    Image newImg = resImage.getScaledInstance((int) (resImage.getWidth()*picCoef),
-                            (int) (resImage.getHeight()*picCoef), Image.SCALE_SMOOTH);
-                    resultImg.setIcon(new ImageIcon(newImg));
+                    if(Objects.equals(imgName, "")) {
+                        JOptionPane.showMessageDialog(mainFrame,
+                                "Изображение для преобразования не найдено",
+                                "404", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        resImage = preprocImg(imgName);
+                        Image newImg = resImage.getScaledInstance((int) (resImage.getWidth()*picCoef),
+                                (int) (resImage.getHeight()*picCoef), Image.SCALE_SMOOTH);
+                        resultImg.setIcon(new ImageIcon(newImg));
+                        if(Config.infoWindow) {
+                            informationText.setText(Config.infoStr);
+                            Config.infoStr = "";
+                        }
+                    }
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -255,28 +279,28 @@ public class ProcessingApplication {
                 saveSettings.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        config.translation = translation.getState();
-                        config.scaling     = scaling.getState();
-                        config.rotation    = rotation.getState();
-                        config.rotAuto     = auto.isSelected();
-                        if(!config.rotAuto)
-                            config.angle = Double.parseDouble(angleStr.getText());
+                        Config.translation = translation.getState();
+                        Config.scaling = scaling.getState();
+                        Config.rotation = rotation.getState();
+                        Config.rotAuto = auto.isSelected();
+                        if(!Config.rotAuto)
+                            Config.angle = Double.parseDouble(angleStr.getText());
                     }
                 });
                 settingsPanel.add(settingsResultPanel, constraintsSettings);
-                translation.setState(config.translation);
-                scaling.setState(config.scaling);
-                rotation.setState(config.rotation);
-                if(config.rotation) {
+                translation.setState(Config.translation);
+                scaling.setState(Config.scaling);
+                rotation.setState(Config.rotation);
+                if(Config.rotation) {
                     auto.setEnabled(true);
                     angle.setEnabled(true);
-                    if(config.rotAuto) {
+                    if(Config.rotAuto) {
                         auto.doClick();
                         angleStr.setText("0.0");
                         angleStr.setEditable(false);
                     } else {
                         angle.doClick();
-                        angleStr.setText(config.angle.toString());
+                        angleStr.setText(Config.angle.toString());
                     }
                 }
                 else {
@@ -298,17 +322,19 @@ public class ProcessingApplication {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Создание немодального окна для вывода информации о преобразовании изображения
-                if(!config.infoWindow) {
-                    config.infoWindow = true;
+                if(!Config.infoWindow) {
+                    Config.infoWindow = true;
                     JDialog infoWindow = new JDialog(mainFrame, "Информационное окно", false);
-                    infoWindow.setSize(300, 300);
+                    infoWindow.setSize(350, 400);
                     infoWindow.setLocationRelativeTo(null);
+                    JPanel infoPanel = new JPanel(new BorderLayout());
+                    infoPanel.setBackground(new Color(93, 118, 203));
                     infoWindow.addWindowListener(new WindowListener() {
                         @Override
                         public void windowOpened(WindowEvent e) {}
                         @Override
                         public void windowClosing(WindowEvent e) {
-                            config.infoWindow = false;
+                            Config.infoWindow = false;
                         }
                         @Override
                         public void windowClosed(WindowEvent e) {}
@@ -321,6 +347,8 @@ public class ProcessingApplication {
                         @Override
                         public void windowDeactivated(WindowEvent e) {}
                     });
+                    infoPanel.add(new JScrollPane(informationText));
+                    infoWindow.add(infoPanel);
                     infoWindow.setVisible(true);
                 }
             }
@@ -340,15 +368,19 @@ public class ProcessingApplication {
         File file = new File(imgName);//images.path+imgName);
         Integer[][] img = Processing.readAndConvertImageToArray(file);
         if(img.length != 0) {
+            Processing.recordInformation("Изображение: " + imgName);
+            Processing.recordInformation("Размер изображения: " + img[0].length + "x" + img.length + "\n");
             //img = Processing.translation(img); // -
             //img = Processing.scaling(img);     // -
-            img = Processing.scalingNew(img);
-            img = Processing.translation(img);
-            System.out.println("Count: " + Processing.pixelCount(img));
+            if(Config.scaling)
+                img = Processing.scalingNew(img);
+            if(Config.translation)
+                img = Processing.translation(img);
             //img = Processing.fillGaps(img);    // -
             //img = Processing.rotation(img);  // -
             //img = Processing.rot(img, -36.645649164620316);
-            img = Processing.rotationNew(img);
+            if(Config.rotation)
+                img = Processing.rotationNew(img);
             return Processing.convertArrayToImageAndWrite(img);
         }
         return new BufferedImage(300, 300, BufferedImage.TYPE_INT_RGB);
