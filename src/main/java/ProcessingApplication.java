@@ -1,8 +1,5 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +10,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ProcessingApplication {
     public static Images images = new Images();
-    public static Config config = new Config();
     public static String imgName = "";
     public static Double picCoef = 0.0;
     public static BufferedImage resImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_RGB);
@@ -28,22 +24,23 @@ public class ProcessingApplication {
         final JFrame mainFrame = new JFrame("Preprocessor Application");
         // Остановить приложение при закрытии
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //frame.setResizable(false); // Не изменять размер
+        mainFrame.setResizable(false); // Не изменять размер
         mainFrame.setSize(700, 400); // Размер окна
         mainFrame.setLocationRelativeTo(null); // Окно в центре экрана
 
         // Создание основной панели для расположения всех элементов
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints constraintsMainPanel = new GridBagConstraints();
-        mainPanel.setBackground(new Color(93, 118, 203));
+        mainPanel.setBackground(new Color(204, 220, 236));
         constraintsMainPanel.weightx = 5;
         constraintsMainPanel.anchor = GridBagConstraints.NORTH;
 
         // Создание панели для открытого изображения
         JPanel panelImgOpen = new JPanel(new BorderLayout());
-        constraintsMainPanel.ipadx = 130;
+        constraintsMainPanel.ipadx = 127;
         constraintsMainPanel.ipady = 140;
-        panelImgOpen.setPreferredSize(new Dimension(130, 140));
+        panelImgOpen.setPreferredSize(new Dimension(127, 140));
+        panelImgOpen.setBackground(new Color(206, 206, 206));
         constraintsMainPanel.weighty = 5;
         constraintsMainPanel.insets.top = 5;
         constraintsMainPanel.gridx = 0;
@@ -53,32 +50,27 @@ public class ProcessingApplication {
         // Создание панели для результирующего изображения
         JPanel panelImgResult = new JPanel(new BorderLayout());
         constraintsMainPanel.gridx = 2;
-        panelImgResult.setPreferredSize(new Dimension(130, 140));
+        panelImgResult.setPreferredSize(new Dimension(127, 140));
+        panelImgResult.setBackground(new Color(206, 206, 206));
         mainPanel.add(panelImgResult, constraintsMainPanel);
 
         // Создание центральной панели
         JPanel panelArrow = new JPanel(new GridLayout());
         constraintsMainPanel.gridx = 1;
         panelArrow.setPreferredSize(new Dimension(10, 140));
-        //panelArrow.setBackground(new Color(93, 118, 203));
         mainPanel.add(panelArrow, constraintsMainPanel);
         final JLabel arrowElem = new JLabel("<html><p style=\"font-size: 800%\">&#10140;</p></html>",
                 SwingConstants.CENTER);
+        panelArrow.setBackground(new Color(204, 220, 236));
         panelArrow.add(arrowElem);
 
         // Создание области для открытого изображения
-        //BufferedImage pic = ImageIO.read(new File(images.path+imgName));
-        //Image img1 = pic.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
-        final JLabel openImg = new JLabel(new ImageIcon(), SwingConstants.CENTER);
-        openImg.setVerticalAlignment(SwingConstants.BOTTOM);
-        panelImgOpen.add(openImg, BorderLayout.SOUTH);
+        final JLabel openImg = new JLabel(new ImageIcon());
+        panelImgOpen.add(openImg, BorderLayout.CENTER);
 
         // Создание области для результирующего изображения
-        //BufferedImage pic2 = ImageIO.read(new File(images.path+imgRes));
-        //Image img2 = pic2.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
-        final JLabel resultImg = new JLabel(new ImageIcon(), SwingConstants.CENTER);
-        resultImg.setVerticalAlignment(SwingConstants.BOTTOM);
-        panelImgResult.add(resultImg);
+        final JLabel resultImg = new JLabel(new ImageIcon());
+        panelImgResult.add(resultImg, BorderLayout.CENTER);
 
         // Создание кнопки для открытия изображения
         JButton uploadImg = new JButton("Открыть");
@@ -110,7 +102,7 @@ public class ProcessingApplication {
 
             }
         });
-        panelImgOpen.add(uploadImg, BorderLayout.NORTH);
+        panelImgOpen.add(uploadImg, BorderLayout.SOUTH);
 
         // Создание кнопки для сохранения изображения
         JButton saveImg = new JButton("Сохранить");
@@ -157,7 +149,7 @@ public class ProcessingApplication {
                 }
             }
         });
-        panelImgResult.add(saveImg, BorderLayout.NORTH);
+        panelImgResult.add(saveImg, BorderLayout.SOUTH);
 
         JTextArea informationText = new JTextArea(20, 28);
         // Создание кнопки для преобразования
@@ -178,14 +170,13 @@ public class ProcessingApplication {
                                 "Изображение для преобразования не найдено",
                                 "404", JOptionPane.ERROR_MESSAGE);
                     } else {
+                        Config.infoStr = "";
                         resImage = preprocImg(imgName);
                         Image newImg = resImage.getScaledInstance((int) (resImage.getWidth()*picCoef),
                                 (int) (resImage.getHeight()*picCoef), Image.SCALE_SMOOTH);
                         resultImg.setIcon(new ImageIcon(newImg));
-                        if(Config.infoWindow) {
+                        if(Config.infoWindow)
                             informationText.setText(Config.infoStr);
-                            Config.infoStr = "";
-                        }
                     }
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
@@ -197,22 +188,30 @@ public class ProcessingApplication {
         // Создание верхнего меню
         JMenuBar menuBar = new JMenuBar();
         JButton openSettingsMenu = new JButton("Настройки");
+        openSettingsMenu.setFocusPainted(false);
+        openSettingsMenu.setOpaque(false);
+        openSettingsMenu.setContentAreaFilled(false);
+        openSettingsMenu.setBorderPainted(false);
         openSettingsMenu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Создание модального окна для настройки
                 JDialog settingsWindow = new JDialog(mainFrame, "Настройки", true);
-                settingsWindow.setSize(300, 300);
+                //settingsWindow.setBackground(new Color(93, 118, 203));
+                settingsWindow.setSize(260, 200);
                 settingsWindow.setLocationRelativeTo(null);
+                settingsWindow.setResizable(false);
                 JPanel settingsPanel = new JPanel(new GridBagLayout());
                 GridBagConstraints constraintsSettings = new GridBagConstraints();
-                settingsPanel.setBackground(new Color(93, 118, 203));
+                //settingsPanel.setBackground(new Color(93, 118, 203));
                 JCheckBoxMenuItem translation  = new JCheckBoxMenuItem("Трансляция");
+                //translation.setBackground(new Color(93, 118, 203));
                 constraintsSettings.fill = GridBagConstraints.HORIZONTAL;
                 constraintsSettings.gridy = 0;
                 constraintsSettings.gridwidth = 3;
                 settingsPanel.add(translation, constraintsSettings);
                 JCheckBoxMenuItem scaling  = new JCheckBoxMenuItem("Масштабирование");
+                //scaling.setBackground(new Color(93, 118, 203));
                 constraintsSettings.gridy = 1;
                 settingsPanel.add(scaling, constraintsSettings);
                 JCheckBoxMenuItem rotation  = new JCheckBoxMenuItem("Ротация");
@@ -314,10 +313,12 @@ public class ProcessingApplication {
                 settingsWindow.setVisible(true);
             }
         });
-        openSettingsMenu.setFocusPainted(false);
-        openSettingsMenu.setBackground(new Color(192, 192, 192));
         menuBar.add(openSettingsMenu);
         JButton openInfoWindow = new JButton("Информационное окно");
+        openInfoWindow.setFocusPainted(false);
+        openInfoWindow.setOpaque(false);
+        openInfoWindow.setContentAreaFilled(false);
+        openInfoWindow.setBorderPainted(false);
         openInfoWindow.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -326,9 +327,9 @@ public class ProcessingApplication {
                     Config.infoWindow = true;
                     JDialog infoWindow = new JDialog(mainFrame, "Информационное окно", false);
                     infoWindow.setSize(350, 400);
+                    infoWindow.setMinimumSize(new Dimension(350, 400));
                     infoWindow.setLocationRelativeTo(null);
                     JPanel infoPanel = new JPanel(new BorderLayout());
-                    infoPanel.setBackground(new Color(93, 118, 203));
                     infoWindow.addWindowListener(new WindowListener() {
                         @Override
                         public void windowOpened(WindowEvent e) {}
@@ -348,13 +349,12 @@ public class ProcessingApplication {
                         public void windowDeactivated(WindowEvent e) {}
                     });
                     infoPanel.add(new JScrollPane(informationText));
+                    informationText.setText(Config.infoStr);
                     infoWindow.add(infoPanel);
                     infoWindow.setVisible(true);
                 }
             }
         });
-        openInfoWindow.setFocusPainted(false);
-        openInfoWindow.setBackground(new Color(192, 192, 192));
         menuBar.add(openInfoWindow);
         mainFrame.setJMenuBar(menuBar);
 
@@ -368,8 +368,8 @@ public class ProcessingApplication {
         File file = new File(imgName);//images.path+imgName);
         Integer[][] img = Processing.readAndConvertImageToArray(file);
         if(img.length != 0) {
-            Processing.recordInformation("Изображение: " + imgName);
-            Processing.recordInformation("Размер изображения: " + img[0].length + "x" + img.length + "\n");
+            Config.recordInformation("Изображение: " + imgName);
+            Config.recordInformation("Размер изображения: " + img[0].length + "x" + img.length + "\n");
             //img = Processing.translation(img); // -
             //img = Processing.scaling(img);     // -
             if(Config.scaling)

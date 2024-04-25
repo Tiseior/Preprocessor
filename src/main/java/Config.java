@@ -9,4 +9,8 @@ public class Config {
     public static Double angle        = 0.0;
     public static Boolean infoWindow  = false;
     public static String infoStr      = "";
+
+    public static void recordInformation(String info) {
+        infoStr += info + "\n";
+    }
 }
