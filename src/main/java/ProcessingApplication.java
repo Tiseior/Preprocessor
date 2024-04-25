@@ -10,9 +10,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ProcessingApplication {
     public static Images images = new Images();
-    public static String imgName = "";
-    public static Double picCoef = 0.0;
-    public static BufferedImage resImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_RGB);
+    public static String imgName = "";    // Путь к файлу
+    public static Double picCoef = 0.0;   // Коэффициент для масштабирования изображения
+    public static BufferedImage resImage; // Результат преобразования изображения
 
     public static void main(String[] args) throws IOException {
 
@@ -20,352 +20,379 @@ public class ProcessingApplication {
         //preprocImg("\\cat.png");
         //preprocImg(images.test10_0);
 
+        Color mainColor = new Color(204, 220, 236); // Основной цвет окна
+        Color imgColor = new Color(206, 206, 206);  // Цвет для панелей с изображениями
+
+        // Области главного окна
+        // ---------------------
         // Создание основного окна
         final JFrame mainFrame = new JFrame("Preprocessor Application");
-        // Остановить приложение при закрытии
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setResizable(false); // Не изменять размер
-        mainFrame.setSize(700, 400); // Размер окна
-        mainFrame.setLocationRelativeTo(null); // Окно в центре экрана
-
         // Создание основной панели для расположения всех элементов
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints constraintsMainPanel = new GridBagConstraints();
-        mainPanel.setBackground(new Color(204, 220, 236));
-        constraintsMainPanel.weightx = 5;
-        constraintsMainPanel.anchor = GridBagConstraints.NORTH;
-
         // Создание панели для открытого изображения
         JPanel panelImgOpen = new JPanel(new BorderLayout());
-        constraintsMainPanel.ipadx = 127;
-        constraintsMainPanel.ipady = 140;
-        panelImgOpen.setPreferredSize(new Dimension(127, 140));
-        panelImgOpen.setBackground(new Color(206, 206, 206));
-        constraintsMainPanel.weighty = 5;
-        constraintsMainPanel.insets.top = 5;
-        constraintsMainPanel.gridx = 0;
-        constraintsMainPanel.gridy = 0;
-        mainPanel.add(panelImgOpen, constraintsMainPanel);
-
         // Создание панели для результирующего изображения
         JPanel panelImgResult = new JPanel(new BorderLayout());
-        constraintsMainPanel.gridx = 2;
-        panelImgResult.setPreferredSize(new Dimension(127, 140));
-        panelImgResult.setBackground(new Color(206, 206, 206));
-        mainPanel.add(panelImgResult, constraintsMainPanel);
-
         // Создание центральной панели
         JPanel panelArrow = new JPanel(new GridLayout());
-        constraintsMainPanel.gridx = 1;
-        panelArrow.setPreferredSize(new Dimension(10, 140));
-        mainPanel.add(panelArrow, constraintsMainPanel);
-        final JLabel arrowElem = new JLabel("<html><p style=\"font-size: 800%\">&#10140;</p></html>",
-                SwingConstants.CENTER);
-        panelArrow.setBackground(new Color(204, 220, 236));
-        panelArrow.add(arrowElem);
-
-        // Создание области для открытого изображения
-        final JLabel openImg = new JLabel(new ImageIcon());
-        panelImgOpen.add(openImg, BorderLayout.CENTER);
-
-        // Создание области для результирующего изображения
-        final JLabel resultImg = new JLabel(new ImageIcon());
-        panelImgResult.add(resultImg, BorderLayout.CENTER);
-
-        // Создание кнопки для открытия изображения
-        JButton uploadImg = new JButton("Открыть");
-        uploadImg.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Выбор изображения для преобразования
-                JFileChooser fileChooser = new JFileChooser(Config.path);
-                FileNameExtensionFilter filterJPG = new FileNameExtensionFilter("JPG(*.jpg)", "jpg");
-                fileChooser.setFileFilter(filterJPG);
-                FileNameExtensionFilter filterPNG = new FileNameExtensionFilter("PNG(*.png)", "png");
-                fileChooser.setFileFilter(filterPNG);
-                int result = fileChooser.showOpenDialog(null);
-                if (result == JFileChooser.APPROVE_OPTION ) {
-                    BufferedImage openPic;
-                    try {
-                        imgName = fileChooser.getSelectedFile().toString();
-                        openPic = ImageIO.read(fileChooser.getSelectedFile());
-                        // Коэффициент сжатия изображения для вывода в интерфейсе
-                        picCoef = 250.0/Math.max(openPic.getWidth(), openPic.getHeight());
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    Image readImg = openPic.getScaledInstance((int) (openPic.getWidth()*picCoef),
-                            (int) (openPic.getHeight()*picCoef), Image.SCALE_SMOOTH);
-                    openImg.setIcon(new ImageIcon(readImg));
-                    resultImg.setIcon(new ImageIcon());
-                }
-
-            }
-        });
-        panelImgOpen.add(uploadImg, BorderLayout.SOUTH);
-
-        // Создание кнопки для сохранения изображения
-        JButton saveImg = new JButton("Сохранить");
-        saveImg.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(resultImg.getIcon().getIconHeight() == -1)
-                    JOptionPane.showMessageDialog(mainFrame,
-                            "Результирующее изображение не найдено",
-                            "404", JOptionPane.ERROR_MESSAGE);
-                else {
-                    // Сохранение результирующего изображения
-                    JFileChooser fileChooser = new JFileChooser(Config.path);
-                    FileNameExtensionFilter filterJPG =
-                            new FileNameExtensionFilter("JPG(*.jpg)", "jpg");
-                    fileChooser.setFileFilter(filterJPG);
-                    FileNameExtensionFilter filterPNG =
-                            new FileNameExtensionFilter("PNG(*.png)", "png");
-                    fileChooser.setFileFilter(filterPNG);
-                    int result = fileChooser.showSaveDialog(fileChooser);
-                    if (result == JFileChooser.APPROVE_OPTION ) {
-                        try {
-                            String saveFile = fileChooser.getSelectedFile().toString();
-                            String fileType = fileChooser.getFileFilter().getDescription();
-                            if(Objects.equals(fileType, "JPG(*.jpg)"))
-                                fileType = ".jpg";
-                            else if(Objects.equals(fileType, "PNG(*.png)"))
-                                fileType = ".png";
-                            else if(Objects.equals(fileType, "All Files"))
-                                if(saveFile.lastIndexOf(".") != -1)
-                                    fileType = "";
-                                else
-                                    fileType = ".png";
-                            saveFile += fileType;
-                            File output = new File(saveFile);
-                            ImageIO.write(resImage,
-                                    saveFile.substring(saveFile.lastIndexOf(".")+1), output);
-                            JOptionPane.showMessageDialog(fileChooser,
-                                    "Файл (" + saveFile + ") сохранен");
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
-                }
-            }
-        });
-        panelImgResult.add(saveImg, BorderLayout.SOUTH);
-
-        JTextArea informationText = new JTextArea(20, 28);
-        // Создание кнопки для преобразования
-        JButton processing = new JButton("<html><font size=4>Преобразовать</html>");
-        processing.setMargin(new Insets(5, 10, 5, 10));
-        constraintsMainPanel.ipadx = 0;
-        constraintsMainPanel.ipady = 0;
-        constraintsMainPanel.gridx = 0;
-        constraintsMainPanel.gridy = 1;
-        constraintsMainPanel.gridwidth = 3;
-        processing.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Запуск препроцессора и отображение результата
-                try {
-                    if(Objects.equals(imgName, "")) {
-                        JOptionPane.showMessageDialog(mainFrame,
-                                "Изображение для преобразования не найдено",
-                                "404", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        Config.infoStr = "";
-                        resImage = preprocImg(imgName);
-                        Image newImg = resImage.getScaledInstance((int) (resImage.getWidth()*picCoef),
-                                (int) (resImage.getHeight()*picCoef), Image.SCALE_SMOOTH);
-                        resultImg.setIcon(new ImageIcon(newImg));
-                        if(Config.infoWindow)
-                            informationText.setText(Config.infoStr);
-                    }
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });
-        mainPanel.add(processing, constraintsMainPanel);
-
         // Создание верхнего меню
         JMenuBar menuBar = new JMenuBar();
+
+        // Элементы главного окна
+        // ----------------------
+        // Создание кнопки для преобразования
+        JButton processing = new JButton("<html><font size=4>Преобразовать</html>");
+        // Создание кнопки для открытия изображения
+        JButton uploadImg = new JButton("Открыть");
+        // Создание кнопки для сохранения изображения
+        JButton saveImg = new JButton("Сохранить");
+        // Создание декоративного элемента со стрелкой
+        final JLabel arrowElem = new JLabel("<html><p style=\"font-size: 800%\">&#10140;</p></html>",
+                SwingConstants.CENTER);
+        // Создание кнопки вызова настроек в поле меню
         JButton openSettingsMenu = new JButton("Настройки");
+        // Создание кнопки вызова информационного окна в поле меню
+        JButton openInfoWindow = new JButton("Информационное окно");
+        // Создание области для открытого изображения
+        final JLabel openImg = new JLabel(new ImageIcon());
+        // Создание области для результирующего изображения
+        final JLabel resultImg = new JLabel(new ImageIcon());
+        // Окно для выбора файла
+        JFileChooser fileChooser = new JFileChooser(Config.path);
+
+        // Области окна настроек
+        // ---------------------
+        // Создание модального окна для настройки
+        JDialog settingsWindow = new JDialog(mainFrame, "Настройки", true);
+        // Создание панели для окна настроек
+        JPanel settingsPanel = new JPanel(new GridBagLayout());
+        // Создание панели для выбора вида ротации
+        JPanel choicePanel = new JPanel();
+        // Создание панели для завершения настроек
+        JPanel settingsResultPanel = new JPanel();
+
+        // Элементы окна настроек
+        // ----------------------
+        // Создание чекбокса для трансляции
+        JCheckBoxMenuItem translation = new JCheckBoxMenuItem("Трансляция");
+        // Создание чекбокса для масштабирования
+        JCheckBoxMenuItem scaling = new JCheckBoxMenuItem("Масштабирование");
+        // Создание чекбокса для ротации
+        JCheckBoxMenuItem rotation = new JCheckBoxMenuItem("Ротация");
+        // Создание группы для выбора способа ротации
+        ButtonGroup choiceGroup = new ButtonGroup();
+        // Создание радиокнопки для автоматической ротации
+        JRadioButtonMenuItem auto = new JRadioButtonMenuItem("Авто");
+        // Создание радиокнопки для ввода угла ротации
+        JRadioButtonMenuItem angle = new JRadioButtonMenuItem("Угол:");
+        // Создание поля ввода для угла ротации
+        JTextField angleStr = new JTextField("0.0", 4);
+        // Создание кнопки для применения настроек
+        JButton saveSettings = new JButton("Применить");
+        // Создание кнопки для возврата настроек к изначальным
+        JButton defaultSettings = new JButton("По умолчанию");
+
+        // Области окна информации
+        // -----------------------
+        // Создание немодального окна для вывода информации о преобразовании изображения
+        JDialog infoWindow = new JDialog(mainFrame, "Информационное окно", false);
+        // Создание области для элементов отображения информации
+        JPanel infoPanel = new JPanel(new BorderLayout());
+
+        // Элементы окна информации
+        // ------------------------
+        // Создание поля для отображения информации
+        JTextArea informationText = new JTextArea(20, 28);
+
+        // Настройка элементов главного окна
+        // ---------------------------------
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(
+                ProcessingApplication.class.getResource("logo.png")));
+        mainFrame.setIconImage(icon.getImage());
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);             // Остановить приложение при закрытии
+        mainFrame.setResizable(false);                                        // Не изменять размер
+        mainFrame.setSize(700, 400);                              // Размер окна
+        mainFrame.setLocationRelativeTo(null);                                // Окно в центре экрана
+        mainPanel.setBackground(mainColor);                                   // Цвет основной панели
+        panelImgOpen.setPreferredSize(new Dimension(127, 140));   // Размер панели для открытия
+        panelImgOpen.setBackground(imgColor);                                 // Цвет панели для открытия
+        panelImgResult.setPreferredSize(new Dimension(127, 140)); // Размер панели для результата
+        panelImgResult.setBackground(imgColor);                               // Цвет панели для результата
+        panelArrow.setPreferredSize(new Dimension(10, 140));      // Размер панели для стрелки
+        panelArrow.setBackground(mainColor);                                  // Цвет панели для стрелки
+        processing.setMargin(new Insets(5, 10, 5, 10));  // Отступы кнопки преобразования
+        // Настройка кнопки вызова настроек
         openSettingsMenu.setFocusPainted(false);
         openSettingsMenu.setOpaque(false);
         openSettingsMenu.setContentAreaFilled(false);
         openSettingsMenu.setBorderPainted(false);
-        openSettingsMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Создание модального окна для настройки
-                JDialog settingsWindow = new JDialog(mainFrame, "Настройки", true);
-                //settingsWindow.setBackground(new Color(93, 118, 203));
-                settingsWindow.setSize(260, 200);
-                settingsWindow.setLocationRelativeTo(null);
-                settingsWindow.setResizable(false);
-                JPanel settingsPanel = new JPanel(new GridBagLayout());
-                GridBagConstraints constraintsSettings = new GridBagConstraints();
-                //settingsPanel.setBackground(new Color(93, 118, 203));
-                JCheckBoxMenuItem translation  = new JCheckBoxMenuItem("Трансляция");
-                //translation.setBackground(new Color(93, 118, 203));
-                constraintsSettings.fill = GridBagConstraints.HORIZONTAL;
-                constraintsSettings.gridy = 0;
-                constraintsSettings.gridwidth = 3;
-                settingsPanel.add(translation, constraintsSettings);
-                JCheckBoxMenuItem scaling  = new JCheckBoxMenuItem("Масштабирование");
-                //scaling.setBackground(new Color(93, 118, 203));
-                constraintsSettings.gridy = 1;
-                settingsPanel.add(scaling, constraintsSettings);
-                JCheckBoxMenuItem rotation  = new JCheckBoxMenuItem("Ротация");
-                constraintsSettings.gridy = 2;
-                settingsPanel.add(rotation, constraintsSettings);
-                JPanel choicePanel = new JPanel();
-                JRadioButtonMenuItem auto = new JRadioButtonMenuItem("Авто");
-                JRadioButtonMenuItem angle = new JRadioButtonMenuItem("Угол:");
-                JTextField angleStr = new JTextField("0.0", 4);
-                auto.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        angleStr.setEditable(false);
-                    }
-                });
-                choicePanel.add(auto);
-                choicePanel.add(angle);
-                angle.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        angleStr.setEditable(true);
-                    }
-                });
-                choicePanel.add(angleStr);
-                constraintsSettings.gridy = 3;
-                ButtonGroup choiceGroup = new ButtonGroup();
-                choiceGroup.add(auto); choiceGroup.add(angle);
-                settingsPanel.add(choicePanel, constraintsSettings);
-                rotation.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if(rotation.getState()) {
-                            auto.setEnabled(true);
-                            angle.setEnabled(true);
-                            if(angle.isSelected())
-                                angleStr.setEditable(true);
-                        } else {
-                            auto.setEnabled(false);
-                            angle.setEnabled(false);
-                            angleStr.setEditable(false);
-                        }
-                    }
-                });
-                JPanel settingsResultPanel = new JPanel();
-                JButton saveSettings = new JButton("Применить");
-                settingsResultPanel.add(saveSettings);
-                JButton defaultSettings = new JButton("По умолчанию");
-                settingsResultPanel.add(defaultSettings);
-                constraintsSettings.gridy = 4;
-                constraintsSettings.insets = new Insets(20, 0, 0, 0);
-                defaultSettings.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        translation.setState(true);
-                        scaling.setState(true);
-                        rotation.setState(true);
-                        auto.setEnabled(true);
-                        auto.doClick();
-                        angle.setEnabled(true);
-                        angleStr.setEditable(false);
-                        angleStr.setText("0.0");
-                    }
-                });
-                saveSettings.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Config.translation = translation.getState();
-                        Config.scaling = scaling.getState();
-                        Config.rotation = rotation.getState();
-                        Config.rotAuto = auto.isSelected();
-                        if(!Config.rotAuto)
-                            Config.angle = Double.parseDouble(angleStr.getText());
-                    }
-                });
-                settingsPanel.add(settingsResultPanel, constraintsSettings);
-                translation.setState(Config.translation);
-                scaling.setState(Config.scaling);
-                rotation.setState(Config.rotation);
-                if(Config.rotation) {
-                    auto.setEnabled(true);
-                    angle.setEnabled(true);
-                    if(Config.rotAuto) {
-                        auto.doClick();
-                        angleStr.setText("0.0");
-                        angleStr.setEditable(false);
-                    } else {
-                        angle.doClick();
-                        angleStr.setText(Config.angle.toString());
-                    }
-                }
-                else {
-                    auto.doClick();
-                    auto.setEnabled(false);
-                    angle.setEnabled(false);
-                    angleStr.setText("0.0");
-                    angleStr.setEditable(false);
-                }
-                settingsWindow.add(settingsPanel);
-                settingsWindow.setVisible(true);
-            }
-        });
-        menuBar.add(openSettingsMenu);
-        JButton openInfoWindow = new JButton("Информационное окно");
+        // Настройка кнопки вызова окна информации
         openInfoWindow.setFocusPainted(false);
         openInfoWindow.setOpaque(false);
         openInfoWindow.setContentAreaFilled(false);
         openInfoWindow.setBorderPainted(false);
-        openInfoWindow.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Создание немодального окна для вывода информации о преобразовании изображения
-                if(!Config.infoWindow) {
-                    Config.infoWindow = true;
-                    JDialog infoWindow = new JDialog(mainFrame, "Информационное окно", false);
-                    infoWindow.setSize(350, 400);
-                    infoWindow.setMinimumSize(new Dimension(350, 400));
-                    infoWindow.setLocationRelativeTo(null);
-                    JPanel infoPanel = new JPanel(new BorderLayout());
-                    infoWindow.addWindowListener(new WindowListener() {
-                        @Override
-                        public void windowOpened(WindowEvent e) {}
-                        @Override
-                        public void windowClosing(WindowEvent e) {
-                            Config.infoWindow = false;
-                        }
-                        @Override
-                        public void windowClosed(WindowEvent e) {}
-                        @Override
-                        public void windowIconified(WindowEvent e) {}
-                        @Override
-                        public void windowDeiconified(WindowEvent e) {}
-                        @Override
-                        public void windowActivated(WindowEvent e) {}
-                        @Override
-                        public void windowDeactivated(WindowEvent e) {}
-                    });
-                    infoPanel.add(new JScrollPane(informationText));
-                    informationText.setText(Config.infoStr);
-                    infoWindow.add(infoPanel);
-                    infoWindow.setVisible(true);
+        FileNameExtensionFilter filterJPG = new FileNameExtensionFilter("JPG(*.jpg)", "jpg");
+        fileChooser.setFileFilter(filterJPG);
+        FileNameExtensionFilter filterPNG = new FileNameExtensionFilter("PNG(*.png)", "png");
+        fileChooser.setFileFilter(filterPNG);
+
+        // Настройка элементов окна настроек
+        // ---------------------------------
+        settingsWindow.setSize(260, 200); // Размер окна
+        settingsWindow.setLocationRelativeTo(null);   // Расположение
+        settingsWindow.setResizable(false);           // Возможность изменять размер
+        translation.setState(Config.translation);     // Значение чекбокса трансляции
+        scaling.setState(Config.scaling);             // Значение чекбокса масштабирования
+        rotation.setState(Config.rotation);           // Значение чекбокса ротации
+        // Значения в области выбора способа поворота
+        if(Config.rotation) {
+            auto.setEnabled(true);
+            angle.setEnabled(true);
+            if(Config.rotAuto) {
+                auto.doClick();
+                angleStr.setText("0.0");
+                angleStr.setEditable(false);
+            } else {
+                angle.doClick();
+                angleStr.setText(Config.angle.toString());
+            }
+        } else {
+            auto.doClick();
+            auto.setEnabled(false);
+            angle.setEnabled(false);
+            angleStr.setText("0.0");
+            angleStr.setEditable(false);
+        }
+
+        // Настройка элементов информационного окна
+        // ----------------------------------------
+        infoWindow.setSize(350, 400); // Размер информационного окна
+        infoWindow.setMinimumSize(new Dimension(350, 400)); // Минимальный размер окна
+        infoWindow.setLocationRelativeTo(null); // Расположение окна
+
+        // Взаимодействия с главным окном
+        // ------------------------------
+        // Взаимодействие с кнопкой открытия изображения
+        uploadImg.addActionListener(clickUpload -> {
+            // Отобразить окно выбора файла
+            int result = fileChooser.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION ) {
+                BufferedImage openPic;
+                try {
+                    imgName = fileChooser.getSelectedFile().toString();
+                    openPic = ImageIO.read(fileChooser.getSelectedFile());
+                    // Коэффициент сжатия изображения для вывода в интерфейсе
+                    picCoef = 250.0/Math.max(openPic.getWidth(), openPic.getHeight());
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                Image readImg = openPic.getScaledInstance((int) (openPic.getWidth()*picCoef),
+                        (int) (openPic.getHeight()*picCoef), Image.SCALE_SMOOTH);
+                openImg.setIcon(new ImageIcon(readImg));
+                resultImg.setIcon(new ImageIcon());
+            }
+        });
+        // Взаимодействие с кнопкой сохранения изображения
+        saveImg.addActionListener(clickSave -> {
+            // Ошибка, если нет изображения для сохранения
+            if(resultImg.getIcon().getIconHeight() == -1)
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Результирующее изображение не найдено",
+                        "404", JOptionPane.ERROR_MESSAGE);
+            else {
+                // Отобразить окно выбора файла
+                fileChooser.resetChoosableFileFilters();
+                int result = fileChooser.showSaveDialog(fileChooser);
+                if (result == JFileChooser.APPROVE_OPTION ) {
+                    try {
+                        String saveFile = fileChooser.getSelectedFile().toString();
+                        String fileType = fileChooser.getFileFilter().getDescription();
+                        if(Objects.equals(fileType, "JPG(*.jpg)"))
+                            fileType = ".jpg";
+                        else if(Objects.equals(fileType, "PNG(*.png)"))
+                            fileType = ".png";
+                        else if(Objects.equals(fileType, "All Files"))
+                            if(saveFile.lastIndexOf(".") != -1)
+                                fileType = "";
+                            else
+                                fileType = ".png";
+                        saveFile += fileType;
+                        File output = new File(saveFile);
+                        ImageIO.write(resImage,
+                                saveFile.substring(saveFile.lastIndexOf(".")+1), output);
+                        JOptionPane.showMessageDialog(fileChooser,
+                                "Файл (" + saveFile + ") сохранен");
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         });
-        menuBar.add(openInfoWindow);
-        mainFrame.setJMenuBar(menuBar);
+        // Взаимодействие с кнопкой преобразования
+        processing.addActionListener(clickProcess -> {
+            // Запуск препроцессора и отображение результата
+            try {
+                // Ошибка, если нет изображения для преобразования
+                if(Objects.equals(imgName, "")) {
+                    JOptionPane.showMessageDialog(mainFrame,
+                            "Изображение для преобразования не найдено",
+                            "404", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    Config.infoStr = "";
+                    resImage = preprocImg(imgName);
+                    Image newImg = resImage.getScaledInstance((int) (resImage.getWidth()*picCoef),
+                            (int) (resImage.getHeight()*picCoef), Image.SCALE_SMOOTH);
+                    resultImg.setIcon(new ImageIcon(newImg));
+                    if(Config.infoWindow)
+                        informationText.setText(Config.infoStr);
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        // Взаимодействие с кнопкой вызова настроек
+        openSettingsMenu.addActionListener(clickSettings -> settingsWindow.setVisible(true));
+        // Взаимодействие с кнопкой вызова информационного меню
+        openInfoWindow.addActionListener(clickInfo -> {
+            if(!Config.infoWindow) {
+                Config.infoWindow = true;
+                informationText.setText(Config.infoStr);
+                infoWindow.setVisible(true);
+            }
+        });
 
-        // Отобразить окно
-        mainFrame.add(mainPanel);
+        // Взаимодействия с окном настроек
+        // -------------------------------
+        // Взаимодействие с радиокнопкой автоповорота
+        auto.addActionListener(clickAuto -> angleStr.setEditable(false));
+        // Взаимодействие с радиокнопкой выбора угла
+        angle.addActionListener(clickAngle -> angleStr.setEditable(true));
+        // Взаимодействие с чекбоксом ротации
+        rotation.addActionListener(clickRot -> {
+            if(rotation.getState()) {
+                auto.setEnabled(true);
+                angle.setEnabled(true);
+                if(angle.isSelected())
+                    angleStr.setEditable(true);
+            } else {
+                auto.setEnabled(false);
+                angle.setEnabled(false);
+                angleStr.setEditable(false);
+            }
+        });
+        // Взаимодействие с кнопкой настроек по умолчанию
+        defaultSettings.addActionListener(clickDefault -> {
+            translation.setState(true);
+            scaling.setState(true);
+            rotation.setState(true);
+            auto.setEnabled(true);
+            auto.doClick();
+            angle.setEnabled(true);
+            angleStr.setEditable(false);
+            angleStr.setText("0.0");
+        });
+        // Взаимодействие с кнопкой применения настроек
+        saveSettings.addActionListener(clickSave -> {
+            Config.translation = translation.getState();
+            Config.scaling = scaling.getState();
+            Config.rotation = rotation.getState();
+            Config.rotAuto = auto.isSelected();
+            if(!Config.rotAuto)
+                Config.angle = Double.parseDouble(angleStr.getText());
+        });
+
+        // Взаимодействия с информационным окном
+        // -------------------------------------
+        infoWindow.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {}
+            @Override
+            public void windowClosing(WindowEvent e) {
+                Config.infoWindow = false;
+            }
+            @Override
+            public void windowClosed(WindowEvent e) {}
+            @Override
+            public void windowIconified(WindowEvent e) {}
+            @Override
+            public void windowDeiconified(WindowEvent e) {}
+            @Override
+            public void windowActivated(WindowEvent e) {}
+            @Override
+            public void windowDeactivated(WindowEvent e) {}
+        });
+
+        // Добавление элементов главного окна
+        // ----------------------------------
+        // Создание ограничений для основного окна
+        GridBagConstraints constraintsMainPanel = new GridBagConstraints();
+        // Создание ограничений для окна настроек
+        GridBagConstraints constraintsSettings = new GridBagConstraints();
+        constraintsMainPanel.anchor     = GridBagConstraints.NORTH;
+        constraintsMainPanel.ipadx      = 127;
+        constraintsMainPanel.ipady      = 140;
+        constraintsMainPanel.weightx    = 5;
+        constraintsMainPanel.weighty    = 5;
+        constraintsMainPanel.insets.top = 5;
+        constraintsMainPanel.gridx      = 0;
+        constraintsMainPanel.gridy      = 0;
+        mainPanel.add(panelImgOpen, constraintsMainPanel);   // Панель открытия -> основная панель
+        constraintsMainPanel.gridx = 2;
+        mainPanel.add(panelImgResult, constraintsMainPanel); // Панель результата -> основная панель
+        constraintsMainPanel.gridx = 1;
+        mainPanel.add(panelArrow, constraintsMainPanel);     // Панель стрелки -> основная панель
+        panelArrow.add(arrowElem);                           // Элемент стрелки -> панель стрелки
+        panelImgOpen.add(openImg, BorderLayout.CENTER);      // Элемент открытия -> панель открытия
+        panelImgResult.add(resultImg, BorderLayout.CENTER);  // Элемент результата -> панель результата
+        panelImgOpen.add(uploadImg, BorderLayout.SOUTH);     // Кнопка открытия -> панель открытия
+        panelImgResult.add(saveImg, BorderLayout.SOUTH);     // Кнопка сохранения -> панель результата
+        constraintsMainPanel.ipadx     = 0;
+        constraintsMainPanel.ipady     = 0;
+        constraintsMainPanel.gridx     = 0;
+        constraintsMainPanel.gridy     = 1;
+        constraintsMainPanel.gridwidth = 3;
+        mainPanel.add(processing, constraintsMainPanel); // Кнопка преобразования -> основная панель
+        menuBar.add(openSettingsMenu);                   // Кнопка вызова меню -> область меню
+        menuBar.add(openInfoWindow);                     // Кнопка вызова информации -> область меню
+        mainFrame.setJMenuBar(menuBar);                  // Область меню -> главное окно
+        mainFrame.add(mainPanel);                        // Основная панель -> главное окно
+
+        // Добавление элементов окна настроек
+        // ----------------------------------
+        constraintsSettings.fill      = GridBagConstraints.HORIZONTAL;
+        constraintsSettings.gridy     = 0;
+        constraintsSettings.gridwidth = 3;
+        settingsPanel.add(translation, constraintsSettings); // Чекбокс трансляции -> панель настроек
+        constraintsSettings.gridy = 1;
+        settingsPanel.add(scaling, constraintsSettings);     // Чекбокс масштабирования -> панель настроек
+        constraintsSettings.gridy = 2;
+        settingsPanel.add(rotation, constraintsSettings); // Чекбокс ротации -> панель настроек
+        choicePanel.add(auto);                            // Радиокнопка авто -> панель выбора
+        choicePanel.add(angle);                           // Радиокнопка угла -> панель выбора
+        choicePanel.add(angleStr);                        // Поле для угла -> панель выбора
+        choiceGroup.add(auto); choiceGroup.add(angle);    // Добавление в группу выбора
+        constraintsSettings.gridy = 3;
+        settingsPanel.add(choicePanel, constraintsSettings); // Панель выбора -> панель настроек
+        settingsResultPanel.add(saveSettings);               // Кнопка применения настроек -> панель результата
+        settingsResultPanel.add(defaultSettings);            // Кнопка по умолчанию -> панель результата
+        constraintsSettings.gridy  = 4;
+        constraintsSettings.insets = new Insets(20, 0, 0, 0);
+        settingsPanel.add(settingsResultPanel, constraintsSettings); // Панель результата -> панель настроек
+        settingsWindow.add(settingsPanel);                           // Панель настроек -> окно настроек
+
+        // Добавление элементов информационного окна
+        // -----------------------------------------
+        infoPanel.add(new JScrollPane(informationText)); // Текстовый элемент -> панель информационная панель
+        infoWindow.add(infoPanel);                       // Информационная панель -> информационное окно
+
+        // Отобразить приложение
+        // ---------------------
         mainFrame.setVisible(true);
     }
 
     // Работа с образом в виде изображения
     public static BufferedImage preprocImg(String imgName) throws IOException {
-        File file = new File(imgName);//images.path+imgName);
+        File file = new File(imgName);
         Integer[][] img = Processing.readAndConvertImageToArray(file);
         if(img.length != 0) {
             Config.recordInformation("Изображение: " + imgName);
@@ -383,7 +410,7 @@ public class ProcessingApplication {
                 img = Processing.rotationNew(img);
             return Processing.convertArrayToImageAndWrite(img);
         }
-        return new BufferedImage(300, 300, BufferedImage.TYPE_INT_RGB);
+        return new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
     }
 
     // Работа с образом в виде двумерного массива

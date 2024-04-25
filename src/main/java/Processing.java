@@ -33,8 +33,7 @@ public class Processing {
             return imgData;
         } catch (IOException e) {
             System.out.println("Image not found");
-            Integer[][] imgData = new Integer[0][0];
-            return imgData;
+            return new Integer[0][0];
         }
     }
 
