@@ -7,16 +7,16 @@ import javax.imageio.ImageIO;
 
 public class Processing {
 
-    // Чтение изображения из файла
-    // Преобразование изображения в двумерный целочисленный массив со значениями элементов:
-    // 0 - белый пиксель, 1 - чёрный пиксель (изначально -1 - белый, 0 - чёрный)
-    // Возвращает преобразованный двумерный массив
+    // Р§С‚РµРЅРёРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РёР· С„Р°Р№Р»Р°
+    // РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ РґРІСѓРјРµСЂРЅС‹Р№ С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹Р№ РјР°СЃСЃРёРІ СЃРѕ Р·РЅР°С‡РµРЅРёСЏРјРё СЌР»РµРјРµРЅС‚РѕРІ:
+    // 0 - Р±РµР»С‹Р№ РїРёРєСЃРµР»СЊ, 1 - С‡С‘СЂРЅС‹Р№ РїРёРєСЃРµР»СЊ (РёР·РЅР°С‡Р°Р»СЊРЅРѕ -1 - Р±РµР»С‹Р№, 0 - С‡С‘СЂРЅС‹Р№)
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРЅС‹Р№ РґРІСѓРјРµСЂРЅС‹Р№ РјР°СЃСЃРёРІ
     public static Integer[][] readAndConvertImageToArray(File file) {
         try {
             BufferedImage image = ImageIO.read(file);
             int height = image.getHeight();
             int width = image.getWidth();
-            // Преобразование изображение в чёрно-белое
+            // РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ С‡С‘СЂРЅРѕ-Р±РµР»РѕРµ
             BufferedImage blackAndWhiteImg = new BufferedImage(width, height,
                     BufferedImage.TYPE_BYTE_GRAY);
             Graphics2D graphics = blackAndWhiteImg.createGraphics();
@@ -24,11 +24,11 @@ public class Processing {
             Integer[][] imgData = new Integer[height][width];
             for(int i=0; i<height*width; i++) {
                 int elem = blackAndWhiteImg.getRGB(i/height, i%height);
-                // Тусклые пиксели делаем нулевыми -4610000
+                // РўСѓСЃРєР»С‹Рµ РїРёРєСЃРµР»Рё РґРµР»Р°РµРј РЅСѓР»РµРІС‹РјРё -4610000
                 if (elem > -4610000)
                     imgData[i%height][i/height] = 0;
                 else
-                    imgData[i%height][i/height] = 1; // Здесь можно заменить на elem или 1
+                    imgData[i%height][i/height] = 1; // Р—РґРµСЃСЊ РјРѕР¶РЅРѕ Р·Р°РјРµРЅРёС‚СЊ РЅР° elem РёР»Рё 1
             }
             return imgData;
         } catch (IOException e) {
@@ -37,9 +37,9 @@ public class Processing {
         }
     }
 
-    // Преобразование двумерного целочисленного массива в изображение с расширением .png
-    // со значениями пикселей: -1 - белый пиксель, 0 - чёрный пиксель
-    // Запись полученного изображения в директорию с изображениями с заданным именем
+    // РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РґРІСѓРјРµСЂРЅРѕРіРѕ С†РµР»РѕС‡РёСЃР»РµРЅРЅРѕРіРѕ РјР°СЃСЃРёРІР° РІ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .png
+    // СЃРѕ Р·РЅР°С‡РµРЅРёСЏРјРё РїРёРєСЃРµР»РµР№: -1 - Р±РµР»С‹Р№ РїРёРєСЃРµР»СЊ, 0 - С‡С‘СЂРЅС‹Р№ РїРёРєСЃРµР»СЊ
+    // Р—Р°РїРёСЃСЊ РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ РґРёСЂРµРєС‚РѕСЂРёСЋ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё СЃ Р·Р°РґР°РЅРЅС‹Рј РёРјРµРЅРµРј
     public static BufferedImage convertArrayToImageAndWrite(Integer[][] img) throws IOException {
         BufferedImage newImage = new BufferedImage(img[0].length, img.length, BufferedImage.TYPE_INT_RGB);
         for(int i=0; i<img.length; i++){
@@ -48,13 +48,13 @@ public class Processing {
                 if(elem == 0)
                     newImage.setRGB(j, i, -1);
                 else
-                    newImage.setRGB(j, i, 0); // Здесь можно заменить на elem или 0
+                    newImage.setRGB(j, i, 0); // Р—РґРµСЃСЊ РјРѕР¶РЅРѕ Р·Р°РјРµРЅРёС‚СЊ РЅР° elem РёР»Рё 0
             }
         }
         return newImage;
     }
 
-    // Вывод образа
+    // Р’С‹РІРѕРґ РѕР±СЂР°Р·Р°
     public static void printImg(Integer[][] img) {
         for (Integer[] row: img) {
             for (Integer elem : row) {
@@ -69,9 +69,9 @@ public class Processing {
         }
     }
 
-    // Количество единичных пикселей
+    // РљРѕР»РёС‡РµСЃС‚РІРѕ РµРґРёРЅРёС‡РЅС‹С… РїРёРєСЃРµР»РµР№
     public static Integer pixelCount(Integer[][] img) {
-        Integer pixelCount = 0; // Количество не нулевых пикселей
+        Integer pixelCount = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ РЅРµ РЅСѓР»РµРІС‹С… РїРёРєСЃРµР»РµР№
         for(Integer[] row : img)
             for(Integer elem : row)
                 if(elem != 0)
@@ -79,9 +79,9 @@ public class Processing {
         return pixelCount;
     }
 
-    // Метод для получения координат образа на изображении.
-    // На выходе массив с координатами (x, y) левого верхнего пикселя образа и
-    // координатами (x, y) правого нижнего пикселя образа
+    // РњРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РєРѕРѕСЂРґРёРЅР°С‚ РѕР±СЂР°Р·Р° РЅР° РёР·РѕР±СЂР°Р¶РµРЅРёРё.
+    // РќР° РІС‹С…РѕРґРµ РјР°СЃСЃРёРІ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё (x, y) Р»РµРІРѕРіРѕ РІРµСЂС…РЅРµРіРѕ РїРёРєСЃРµР»СЏ РѕР±СЂР°Р·Р° Рё
+    // РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё (x, y) РїСЂР°РІРѕРіРѕ РЅРёР¶РЅРµРіРѕ РїРёРєСЃРµР»СЏ РѕР±СЂР°Р·Р°
     public static Integer[] imgCoords(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
@@ -90,11 +90,11 @@ public class Processing {
             for(int x=0; x<matrixSizeX; x++) {
                 if(img[y][x] != 0) {
                     if (coords[0] == null) {
-                        // Первое заполнение массивов с координатами
+                        // РџРµСЂРІРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ РјР°СЃСЃРёРІРѕРІ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё
                         coords[0] = x; coords[1] = y;
                         coords[2] = x; coords[3] = y;
                     } else {
-                        // Дальнейшее изменение координат образов
+                        // Р”Р°Р»СЊРЅРµР№С€РµРµ РёР·РјРµРЅРµРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ РѕР±СЂР°Р·РѕРІ
                         if(x < coords[0]) coords[0] = x;
                         if(y < coords[1]) coords[1] = y;
                         if(x > coords[2]) coords[2] = x;
@@ -105,12 +105,12 @@ public class Processing {
         return coords;
     }
 
-    // Центрирование образа
+    // Р¦РµРЅС‚СЂРёСЂРѕРІР°РЅРёРµ РѕР±СЂР°Р·Р°
     public static Integer[][] translation(Integer[][] img) {
-        Config.recordInformation("Выполнение трансляции");
+        Config.recordInformation("Р’С‹РїРѕР»РЅРµРЅРёРµ С‚СЂР°РЅСЃР»СЏС†РёРё");
         try {
             Integer[] coords = imgCoords(img);
-            Config.recordInformation("Координаты углов образа: (" + coords[0] + "; " + coords[1] + "), (" +
+            Config.recordInformation("РљРѕРѕСЂРґРёРЅР°С‚С‹ СѓРіР»РѕРІ РѕР±СЂР°Р·Р°: (" + coords[0] + "; " + coords[1] + "), (" +
                     coords[2] + "; " + coords[3] + ")");
             Integer matrixSizeY = img.length;
             Integer matrixSizeX = img[0].length;
@@ -120,8 +120,8 @@ public class Processing {
 
             Integer pixelCount = pixelCount(img);
 
-            Integer shiftX = 0; // Сдвиг по оси X
-            Integer shiftY = 0; // Сдвиг по оси Y
+            Integer shiftX = 0; // РЎРґРІРёРі РїРѕ РѕСЃРё X
+            Integer shiftY = 0; // РЎРґРІРёРі РїРѕ РѕСЃРё Y
             for(int y=0; y<matrixSizeY; y++)
                 for(int x=0; x<matrixSizeX; x++) {
                     if(img[y][x] != 0) {
@@ -142,29 +142,29 @@ public class Processing {
                         resultingMatrix[y+shiftY][x+shiftX] = elem;
                 }
             coords = imgCoords(resultingMatrix);
-            Config.recordInformation("Координаты углов образа: (" + coords[0] + "; " + coords[1] + "), (" +
+            Config.recordInformation("РљРѕРѕСЂРґРёРЅР°С‚С‹ СѓРіР»РѕРІ РѕР±СЂР°Р·Р°: (" + coords[0] + "; " + coords[1] + "), (" +
                     coords[2] + "; " + coords[3] + ")");
-            Config.recordInformation("Трансляция выполнена\n");
+            Config.recordInformation("РўСЂР°РЅСЃР»СЏС†РёСЏ РІС‹РїРѕР»РЅРµРЅР°\n");
 
             return resultingMatrix;
         } catch (Exception ex) {
-            Config.recordInformation("Ошибка трансляции!\n");
+            Config.recordInformation("РћС€РёР±РєР° С‚СЂР°РЅСЃР»СЏС†РёРё!\n");
             return img;
         }
     }
 
-    // Подобранный алгоритм масштабирования
+    // РџРѕРґРѕР±СЂР°РЅРЅС‹Р№ Р°Р»РіРѕСЂРёС‚Рј РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ
     public static Integer[][] scalingNew(Integer[][] img) {
-        Config.recordInformation("Выполнение масштабирования");
+        Config.recordInformation("Р’С‹РїРѕР»РЅРµРЅРёРµ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ");
         try {
-            Config.recordInformation("Количество пикселей в образе: " + pixelCount(img));
+            Config.recordInformation("РљРѕР»РёС‡РµСЃС‚РІРѕ РїРёРєСЃРµР»РµР№ РІ РѕР±СЂР°Р·Рµ: " + pixelCount(img));
             Integer matrixSizeY = img.length;
             Integer matrixSizeX = img[0].length;
             Integer[][] resultingMatrix = new Integer[matrixSizeY][matrixSizeX];
             for(Integer[] row: resultingMatrix)
                 Arrays.fill(row, 0);
             Integer[] coordsOld = imgCoords(img);
-            // Вычисление ширины и высоты старого образа
+            // Р’С‹С‡РёСЃР»РµРЅРёРµ С€РёСЂРёРЅС‹ Рё РІС‹СЃРѕС‚С‹ СЃС‚Р°СЂРѕРіРѕ РѕР±СЂР°Р·Р°
             int sizeOldX = coordsOld[2]-coordsOld[0]+1;
             int sizeOldY = coordsOld[3]-coordsOld[1]+1;
             Double coefX = matrixSizeX / (2.0 * sizeOldX);
@@ -180,17 +180,17 @@ public class Processing {
                 System.out.println("new: " + (coordsNew[i]));
             }
             nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
-            Config.recordInformation("Количество пикселей в образе: " + pixelCount(resultingMatrix));
-            Config.recordInformation("Масштабирование выполнено\n");
+            Config.recordInformation("РљРѕР»РёС‡РµСЃС‚РІРѕ РїРёРєСЃРµР»РµР№ РІ РѕР±СЂР°Р·Рµ: " + pixelCount(resultingMatrix));
+            Config.recordInformation("РњР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ\n");
 
             return resultingMatrix;
         } catch (Exception ex) {
-            Config.recordInformation("Ошибка масштабирования!\n");
+            Config.recordInformation("РћС€РёР±РєР° РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ!\n");
             return img;
         }
     }
 
-    // Масштабирование образа
+    // РњР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµ РѕР±СЂР°Р·Р°
     public static Integer[][] scaling(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
@@ -203,7 +203,7 @@ public class Processing {
         Integer pixelCount = pixelCount(img);
         System.out.println("pixelCount: " + pixelCount);
 
-        Double avgDistance = 0.0; // Среднее расстояние
+        Double avgDistance = 0.0; // РЎСЂРµРґРЅРµРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ
 
         for(int y=0; y<matrixSizeY; y++)
             for(int x=0; x<matrixSizeX; x++)
@@ -213,14 +213,14 @@ public class Processing {
 
         System.out.println("avg: " + avgDistance);
 
-        // Вычисление размера кадра образа
+        // Р’С‹С‡РёСЃР»РµРЅРёРµ СЂР°Р·РјРµСЂР° РєР°РґСЂР° РѕР±СЂР°Р·Р°
         //Double frameSizePart = Math.sqrt(matrixSizeX*matrixSizeX+matrixSizeY*matrixSizeY+pixelCount*pixelCount)/4.0;
         Double frameSizePart = Math.sqrt(matrixSizeX*matrixSizeX+matrixSizeY*matrixSizeY);
-        // Для увеличения образа
+        // Р”Р»СЏ СѓРІРµР»РёС‡РµРЅРёСЏ РѕР±СЂР°Р·Р°
         //Double scalingCoef = frameSizePart/avgDistance;
-        // Для уменьшения образа
+        // Р”Р»СЏ СѓРјРµРЅСЊС€РµРЅРёСЏ РѕР±СЂР°Р·Р°
         //Double scalingCoef = avgDistance/frameSizePart;
-        // !!! Условие на основе предположения об уменьшении или увеличении
+        // !!! РЈСЃР»РѕРІРёРµ РЅР° РѕСЃРЅРѕРІРµ РїСЂРµРґРїРѕР»РѕР¶РµРЅРёСЏ РѕР± СѓРјРµРЅСЊС€РµРЅРёРё РёР»Рё СѓРІРµР»РёС‡РµРЅРёРё
         Double scalingCoef = 0.0;
         if(matrixSizeX*matrixSizeY>4*pixelCount/*avgDistance>pixelCount*/)
             scalingCoef = frameSizePart/avgDistance;
@@ -228,22 +228,22 @@ public class Processing {
             scalingCoef = avgDistance/frameSizePart;
         System.out.println("scalingCoef: " + scalingCoef);
 
-        // Координаты образа до масштабирования: x min, y min, x max, y max
+        // РљРѕРѕСЂРґРёРЅР°С‚С‹ РѕР±СЂР°Р·Р° РґРѕ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ: x min, y min, x max, y max
         Integer[] coordsOld = new Integer[4];
-        // Координаты образа после масштабирования: x min, y min, x max, y max
+        // РљРѕРѕСЂРґРёРЅР°С‚С‹ РѕР±СЂР°Р·Р° РїРѕСЃР»Рµ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ: x min, y min, x max, y max
         Integer[] coordsNew = new Integer[4];
-        // Возможное решение невозможности масштабирования образа
+        // Р’РѕР·РјРѕР¶РЅРѕРµ СЂРµС€РµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ РѕР±СЂР°Р·Р°
         try {
             for(int y=0; y<matrixSizeY; y++)
                 for(int x=0; x<matrixSizeX; x++) {
                     if(img[y][x] != 0) {
-                        // Для увеличения образа
+                        // Р”Р»СЏ СѓРІРµР»РёС‡РµРЅРёСЏ РѕР±СЂР°Р·Р°
                         //int xm = Math.abs((int) Math.round(matrixSizeX/2.0 - x*scalingCoef));
                         //int ym = Math.abs((int) Math.round(matrixSizeY/2.0 - y*scalingCoef));
-                        // Для уменьшения образа
+                        // Р”Р»СЏ СѓРјРµРЅСЊС€РµРЅРёСЏ РѕР±СЂР°Р·Р°
                         //int xm = Math.abs((int) Math.round(x*scalingCoef));
                         //int ym = Math.abs((int) Math.round(y*scalingCoef));
-                        // !!! Условие на основе предположения об уменьшении или увеличении
+                        // !!! РЈСЃР»РѕРІРёРµ РЅР° РѕСЃРЅРѕРІРµ РїСЂРµРґРїРѕР»РѕР¶РµРЅРёСЏ РѕР± СѓРјРµРЅСЊС€РµРЅРёРё РёР»Рё СѓРІРµР»РёС‡РµРЅРёРё
                         int xm = 0, ym = 0;
                         if(matrixSizeX*matrixSizeY>4*pixelCount/*avgDistance>pixelCount*/) {
                             xm = Math.abs((int) Math.round(matrixSizeX/2.0 - x*scalingCoef));
@@ -255,13 +255,13 @@ public class Processing {
                         }
 
                         if (coordsOld[0] == null) {
-                            // Первое заполнение массивов с координатами
+                            // РџРµСЂРІРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ РјР°СЃСЃРёРІРѕРІ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё
                             coordsOld[0] = x; coordsOld[1] = y;
                             coordsOld[2] = x; coordsOld[3] = y;
                             coordsNew[0] = xm; coordsNew[1] = ym;
                             coordsNew[2] = xm; coordsNew[3] = ym;
                         } else {
-                            // Дальнейшее изменение координат образов
+                            // Р”Р°Р»СЊРЅРµР№С€РµРµ РёР·РјРµРЅРµРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ РѕР±СЂР°Р·РѕРІ
                             if(x < coordsOld[0]) coordsOld[0] = x;
                             if(y < coordsOld[1]) coordsOld[1] = y;
                             if(x > coordsOld[2]) coordsOld[2] = x;
@@ -278,20 +278,20 @@ public class Processing {
             //printImg(resultingMatrix);
             //nearestNeighbourInterpolation(img, coordsOld, resultingMatrix, coordsNew);
         } catch (java.lang.ArrayIndexOutOfBoundsException e) {
-            System.out.println("Данный образ нельзя масштабировать");
+            System.out.println("Р”Р°РЅРЅС‹Р№ РѕР±СЂР°Р· РЅРµР»СЊР·СЏ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°С‚СЊ");
             resultingMatrix = img;
         }
         return resultingMatrix;
     }
 
-    // Заполнение пропусков в матрице
-    // Идём тройками. В начале берём по три элемента построчно, если боковые равны 1, то и средний равен 1.
-    // Потом идём тройками, но по столбцам.
+    // Р—Р°РїРѕР»РЅРµРЅРёРµ РїСЂРѕРїСѓСЃРєРѕРІ РІ РјР°С‚СЂРёС†Рµ
+    // РРґС‘Рј С‚СЂРѕР№РєР°РјРё. Р’ РЅР°С‡Р°Р»Рµ Р±РµСЂС‘Рј РїРѕ С‚СЂРё СЌР»РµРјРµРЅС‚Р° РїРѕСЃС‚СЂРѕС‡РЅРѕ, РµСЃР»Рё Р±РѕРєРѕРІС‹Рµ СЂР°РІРЅС‹ 1, С‚Рѕ Рё СЃСЂРµРґРЅРёР№ СЂР°РІРµРЅ 1.
+    // РџРѕС‚РѕРј РёРґС‘Рј С‚СЂРѕР№РєР°РјРё, РЅРѕ РїРѕ СЃС‚РѕР»Р±С†Р°Рј.
     // 101 = 111
     public static Integer[][] fillGaps(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
-        // Проходим тройками по каждой строке
+        // РџСЂРѕС…РѕРґРёРј С‚СЂРѕР№РєР°РјРё РїРѕ РєР°Р¶РґРѕР№ СЃС‚СЂРѕРєРµ
         if(matrixSizeX >= 3) {
             for(int y=0, indexX=1; y < matrixSizeY; y++) {
                 while(indexX+1 < matrixSizeX) {
@@ -302,7 +302,7 @@ public class Processing {
                 indexX = 1;
             }
         }
-        // Проходим тройками по каждому столбцу
+        // РџСЂРѕС…РѕРґРёРј С‚СЂРѕР№РєР°РјРё РїРѕ РєР°Р¶РґРѕРјСѓ СЃС‚РѕР»Р±С†Сѓ
         if(matrixSizeY >= 3) {
             for(int x=0, indexY=1; x < matrixSizeX; x++) {
                 while(indexY+1 < matrixSizeY) {
@@ -317,19 +317,19 @@ public class Processing {
         return img;
     }
 
-    // Интерполяция методом ближайшего соседа
-    // На вход старый образ и его координаты, новый образ и его координаты
-    // На выходе изменённый новый образ
-    // coordsOld и coordsNew имеют следующую структуру: x min, y min, x max, y max
+    // РРЅС‚РµСЂРїРѕР»СЏС†РёСЏ РјРµС‚РѕРґРѕРј Р±Р»РёР¶Р°Р№С€РµРіРѕ СЃРѕСЃРµРґР°
+    // РќР° РІС…РѕРґ СЃС‚Р°СЂС‹Р№ РѕР±СЂР°Р· Рё РµРіРѕ РєРѕРѕСЂРґРёРЅР°С‚С‹, РЅРѕРІС‹Р№ РѕР±СЂР°Р· Рё РµРіРѕ РєРѕРѕСЂРґРёРЅР°С‚С‹
+    // РќР° РІС‹С…РѕРґРµ РёР·РјРµРЅС‘РЅРЅС‹Р№ РЅРѕРІС‹Р№ РѕР±СЂР°Р·
+    // coordsOld Рё coordsNew РёРјРµСЋС‚ СЃР»РµРґСѓСЋС‰СѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ: x min, y min, x max, y max
     public static void nearestNeighbourInterpolation (Integer[][] imgOld, Integer[] coordsOld,
                                                       Integer[][] imgNew, Integer[] coordsNew) {
-        // Вычисление ширины и высоты старого образа
+        // Р’С‹С‡РёСЃР»РµРЅРёРµ С€РёСЂРёРЅС‹ Рё РІС‹СЃРѕС‚С‹ СЃС‚Р°СЂРѕРіРѕ РѕР±СЂР°Р·Р°
         int sizeOldX = coordsOld[2]-coordsOld[0]+1;
         int sizeOldY = coordsOld[3]-coordsOld[1]+1;
-        // Вычисление ширины и высоты нового образа
+        // Р’С‹С‡РёСЃР»РµРЅРёРµ С€РёСЂРёРЅС‹ Рё РІС‹СЃРѕС‚С‹ РЅРѕРІРѕРіРѕ РѕР±СЂР°Р·Р°
         int sizeNewX = coordsNew[2]-coordsNew[0]+1;
         int sizeNewY = coordsNew[3]-coordsNew[1]+1;
-        // Вычисление коэффициентов масштабирования образа по осям
+        // Р’С‹С‡РёСЃР»РµРЅРёРµ РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ РѕР±СЂР°Р·Р° РїРѕ РѕСЃСЏРј
         float coefX = (float)(sizeOldX)/(sizeNewX);
         float coefY = (float)(sizeOldY)/(sizeNewY);
         //for(Integer[] row: imgNew)
@@ -338,68 +338,68 @@ public class Processing {
         for(int y=coordsNew[1]; y<=coordsNew[3]; y++)
             for(int x=coordsNew[0]; x<=coordsNew[2]; x++)
                 /*if(imgNew[y][x] == 0)*/ {
-                    // Вычисление координат старого образа по преобразованным
-                    // координатам нового образа
+                    // Р’С‹С‡РёСЃР»РµРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ СЃС‚Р°СЂРѕРіРѕ РѕР±СЂР°Р·Р° РїРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРЅС‹Рј
+                    // РєРѕРѕСЂРґРёРЅР°С‚Р°Рј РЅРѕРІРѕРіРѕ РѕР±СЂР°Р·Р°
                     oldX = (int)Math.floor((x - coordsNew[0]) * coefX);
                     oldY = (int)Math.floor((y - coordsNew[1]) * coefY);
-                    // Заполнение элемента нового образа, возвращаясь
-                    // к стандартным координатам
+                    // Р—Р°РїРѕР»РЅРµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РЅРѕРІРѕРіРѕ РѕР±СЂР°Р·Р°, РІРѕР·РІСЂР°С‰Р°СЏСЃСЊ
+                    // Рє СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рј РєРѕРѕСЂРґРёРЅР°С‚Р°Рј
                     imgNew[y][x] = imgOld[oldY + coordsOld[1]][oldX + coordsOld[0]];
                 }
     }
 
-    // Метод для поворота изображения, используя 4 найденных угла.
-    // Здесь выбирается наилучший угол для поворота, исходя из размера области,
-    // занимаемой образом. Чем меньше размер этой области, тем прямее
-    // расположен образ.
+    // РњРµС‚РѕРґ РґР»СЏ РїРѕРІРѕСЂРѕС‚Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, РёСЃРїРѕР»СЊР·СѓСЏ 4 РЅР°Р№РґРµРЅРЅС‹С… СѓРіР»Р°.
+    // Р—РґРµСЃСЊ РІС‹Р±РёСЂР°РµС‚СЃСЏ РЅР°РёР»СѓС‡С€РёР№ СѓРіРѕР» РґР»СЏ РїРѕРІРѕСЂРѕС‚Р°, РёСЃС…РѕРґСЏ РёР· СЂР°Р·РјРµСЂР° РѕР±Р»Р°СЃС‚Рё,
+    // Р·Р°РЅРёРјР°РµРјРѕР№ РѕР±СЂР°Р·РѕРј. Р§РµРј РјРµРЅСЊС€Рµ СЂР°Р·РјРµСЂ СЌС‚РѕР№ РѕР±Р»Р°СЃС‚Рё, С‚РµРј РїСЂСЏРјРµРµ
+    // СЂР°СЃРїРѕР»РѕР¶РµРЅ РѕР±СЂР°Р·.
     public static Integer[][] rotationNew(Integer[][] img) {
-        Config.recordInformation("Выполнение ротации");
+        Config.recordInformation("Р’С‹РїРѕР»РЅРµРЅРёРµ СЂРѕС‚Р°С†РёРё");
         try {
-            // Если отключен автоповорот
+            // Р•СЃР»Рё РѕС‚РєР»СЋС‡РµРЅ Р°РІС‚РѕРїРѕРІРѕСЂРѕС‚
             if(!Config.rotAuto) {
-                Config.recordInformation("Поворот на угол: " + Config.angle);
+                Config.recordInformation("РџРѕРІРѕСЂРѕС‚ РЅР° СѓРіРѕР»: " + Config.angle);
                 img = rot(img, Config.angle);
-                Config.recordInformation("Ротация выполнена\n");
+                Config.recordInformation("Р РѕС‚Р°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР°\n");
                 return img;
             }
 
-            // Получаем возможные углы для поворота
+            // РџРѕР»СѓС‡Р°РµРј РІРѕР·РјРѕР¶РЅС‹Рµ СѓРіР»С‹ РґР»СЏ РїРѕРІРѕСЂРѕС‚Р°
             Double[] angles = takeAngle(img);
-            Config.recordInformation("Левый нижний угол: " + angles[0]);
-            Config.recordInformation("Левый верхний угол: " + angles[1]);
-            Config.recordInformation("Правый верхний угол: " + angles[2]);
-            Config.recordInformation("Правый нижний угол: " + angles[3]);
+            Config.recordInformation("Р›РµРІС‹Р№ РЅРёР¶РЅРёР№ СѓРіРѕР»: " + angles[0]);
+            Config.recordInformation("Р›РµРІС‹Р№ РІРµСЂС…РЅРёР№ СѓРіРѕР»: " + angles[1]);
+            Config.recordInformation("РџСЂР°РІС‹Р№ РІРµСЂС…РЅРёР№ СѓРіРѕР»: " + angles[2]);
+            Config.recordInformation("РџСЂР°РІС‹Р№ РЅРёР¶РЅРёР№ СѓРіРѕР»: " + angles[3]);
             Double bestAngle = 0.0;
-            System.out.println("Всего углов: " + angles.length);
-            // Вычисляем изначальные координаты образа и размер области
+            System.out.println("Р’СЃРµРіРѕ СѓРіР»РѕРІ: " + angles.length);
+            // Р’С‹С‡РёСЃР»СЏРµРј РёР·РЅР°С‡Р°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕР±СЂР°Р·Р° Рё СЂР°Р·РјРµСЂ РѕР±Р»Р°СЃС‚Рё
             Integer[] coords = imgCoords(img);
             int sectorSize = (coords[2]-coords[0]) + (coords[3]-coords[1]);
             int size;
             Integer[][] imgCopy = new Integer[img.length][img[0].length];
-            Config.recordInformation("Первичный размер сектора: " + sectorSize);
-            System.out.println("Первичный размер сектора: " + sectorSize);
-            // Отклонение для вычисления размера сектора
-            // Отклонение составляет 1% от исходного размера сектора
+            Config.recordInformation("РџРµСЂРІРёС‡РЅС‹Р№ СЂР°Р·РјРµСЂ СЃРµРєС‚РѕСЂР°: " + sectorSize);
+            System.out.println("РџРµСЂРІРёС‡РЅС‹Р№ СЂР°Р·РјРµСЂ СЃРµРєС‚РѕСЂР°: " + sectorSize);
+            // РћС‚РєР»РѕРЅРµРЅРёРµ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ СЂР°Р·РјРµСЂР° СЃРµРєС‚РѕСЂР°
+            // РћС‚РєР»РѕРЅРµРЅРёРµ СЃРѕСЃС‚Р°РІР»СЏРµС‚ 1% РѕС‚ РёСЃС…РѕРґРЅРѕРіРѕ СЂР°Р·РјРµСЂР° СЃРµРєС‚РѕСЂР°
             int deviation = sectorSize/100;
-            Config.recordInformation("Возможное отклонение размера сектора: " + deviation);
-            System.out.println("Возможное отклонение размера сектора: " + deviation);
+            Config.recordInformation("Р’РѕР·РјРѕР¶РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° СЃРµРєС‚РѕСЂР°: " + deviation);
+            System.out.println("Р’РѕР·РјРѕР¶РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° СЃРµРєС‚РѕСЂР°: " + deviation);
             for (Double angle : angles) {
                 if (Math.abs(angle) > 0.001) {
-                    Config.recordInformation("Угол: " + angle);
-                    System.out.println("Угол: " + angle);
-                    // Копирование образа и работа с копией
+                    Config.recordInformation("РЈРіРѕР»: " + angle);
+                    System.out.println("РЈРіРѕР»: " + angle);
+                    // РљРѕРїРёСЂРѕРІР°РЅРёРµ РѕР±СЂР°Р·Р° Рё СЂР°Р±РѕС‚Р° СЃ РєРѕРїРёРµР№
                     for (int i = 0; i < img.length; i++)
                         System.arraycopy(img[i], 0, imgCopy[i], 0, img[0].length);
                     imgCopy = rot(imgCopy, angle);
                     coords = imgCoords(imgCopy);
                     size = (coords[2] - coords[0]) + (coords[3] - coords[1]);
-                    Config.recordInformation("Размер сектора: " + size);
-                    System.out.println("Размер сектора: " + size);
-                    // Выбирается угол, если:
-                    // 1) Новый сектор меньше предыдущего
-                    // 2) Угол ранее не выбран и новый сектор меньше или равен предыдущему
-                    // 3) Угол ранее не выбран и новый сектор больше предыдущего
-                    //    не более чем на величину отклонения
+                    Config.recordInformation("Р Р°Р·РјРµСЂ СЃРµРєС‚РѕСЂР°: " + size);
+                    System.out.println("Р Р°Р·РјРµСЂ СЃРµРєС‚РѕСЂР°: " + size);
+                    // Р’С‹Р±РёСЂР°РµС‚СЃСЏ СѓРіРѕР», РµСЃР»Рё:
+                    // 1) РќРѕРІС‹Р№ СЃРµРєС‚РѕСЂ РјРµРЅСЊС€Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ
+                    // 2) РЈРіРѕР» СЂР°РЅРµРµ РЅРµ РІС‹Р±СЂР°РЅ Рё РЅРѕРІС‹Р№ СЃРµРєС‚РѕСЂ РјРµРЅСЊС€Рµ РёР»Рё СЂР°РІРµРЅ РїСЂРµРґС‹РґСѓС‰РµРјСѓ
+                    // 3) РЈРіРѕР» СЂР°РЅРµРµ РЅРµ РІС‹Р±СЂР°РЅ Рё РЅРѕРІС‹Р№ СЃРµРєС‚РѕСЂ Р±РѕР»СЊС€Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ
+                    //    РЅРµ Р±РѕР»РµРµ С‡РµРј РЅР° РІРµР»РёС‡РёРЅСѓ РѕС‚РєР»РѕРЅРµРЅРёСЏ
                     if (size < sectorSize
                             || (bestAngle == 0.0 && size <= sectorSize)
                             || (bestAngle == 0.0 && size - sectorSize <= deviation)) {
@@ -408,59 +408,59 @@ public class Processing {
                     }
                 }
             }
-            Config.recordInformation("Итоговый угол поворота: " + bestAngle);
-            System.out.println("Итоговый угол поворота: " + bestAngle);
+            Config.recordInformation("РС‚РѕРіРѕРІС‹Р№ СѓРіРѕР» РїРѕРІРѕСЂРѕС‚Р°: " + bestAngle);
+            System.out.println("РС‚РѕРіРѕРІС‹Р№ СѓРіРѕР» РїРѕРІРѕСЂРѕС‚Р°: " + bestAngle);
             if(Math.abs(bestAngle) > 0.001)
                 img = rot(img, bestAngle);
-            Config.recordInformation("Ротация выполнена\n");
+            Config.recordInformation("Р РѕС‚Р°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР°\n");
             return img;
         } catch (Exception ex) {
-            Config.recordInformation("Ошибка ротации!\n");
+            Config.recordInformation("РћС€РёР±РєР° СЂРѕС‚Р°С†РёРё!\n");
             return img;
         }
     }
 
-    // Метода для получения угла поворота по
-    // четырём прямоугольным треугольникам.
-    // Описание принципа работы.
-    // Находим прямоугольник, в который заключён образ (левый верхний и правый нижний пиксель).
-    // Двигаемся по углам этого прямоугольника по осям X и Y.
-    // Первые встречные пиксели образа - это вершины прямоугольного треугольника.
-    // Далее вычисляем наименьший угол в треугольнике. Таким образом получаем 4 угла.
-    // Для определения знака поворота используем сумму разниц длин катетов прямоугольных треугольников.
-    // Берём меньший из четырёх углов и ставим получившийся знак.
+    // РњРµС‚РѕРґР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СѓРіР»Р° РїРѕРІРѕСЂРѕС‚Р° РїРѕ
+    // С‡РµС‚С‹СЂС‘Рј РїСЂСЏРјРѕСѓРіРѕР»СЊРЅС‹Рј С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°Рј.
+    // РћРїРёСЃР°РЅРёРµ РїСЂРёРЅС†РёРїР° СЂР°Р±РѕС‚С‹.
+    // РќР°С…РѕРґРёРј РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє, РІ РєРѕС‚РѕСЂС‹Р№ Р·Р°РєР»СЋС‡С‘РЅ РѕР±СЂР°Р· (Р»РµРІС‹Р№ РІРµСЂС…РЅРёР№ Рё РїСЂР°РІС‹Р№ РЅРёР¶РЅРёР№ РїРёРєСЃРµР»СЊ).
+    // Р”РІРёРіР°РµРјСЃСЏ РїРѕ СѓРіР»Р°Рј СЌС‚РѕРіРѕ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° РїРѕ РѕСЃСЏРј X Рё Y.
+    // РџРµСЂРІС‹Рµ РІСЃС‚СЂРµС‡РЅС‹Рµ РїРёРєСЃРµР»Рё РѕР±СЂР°Р·Р° - СЌС‚Рѕ РІРµСЂС€РёРЅС‹ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРѕРіРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°.
+    // Р”Р°Р»РµРµ РІС‹С‡РёСЃР»СЏРµРј РЅР°РёРјРµРЅСЊС€РёР№ СѓРіРѕР» РІ С‚СЂРµСѓРіРѕР»СЊРЅРёРєРµ. РўР°РєРёРј РѕР±СЂР°Р·РѕРј РїРѕР»СѓС‡Р°РµРј 4 СѓРіР»Р°.
+    // Р”Р»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ Р·РЅР°РєР° РїРѕРІРѕСЂРѕС‚Р° РёСЃРїРѕР»СЊР·СѓРµРј СЃСѓРјРјСѓ СЂР°Р·РЅРёС† РґР»РёРЅ РєР°С‚РµС‚РѕРІ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅС‹С… С‚СЂРµСѓРіРѕР»СЊРЅРёРєРѕРІ.
+    // Р‘РµСЂС‘Рј РјРµРЅСЊС€РёР№ РёР· С‡РµС‚С‹СЂС‘С… СѓРіР»РѕРІ Рё СЃС‚Р°РІРёРј РїРѕР»СѓС‡РёРІС€РёР№СЃСЏ Р·РЅР°Рє.
     public static Double[] takeAngle(Integer[][] img) {
-        // (x, y) левого верхнего угла и (x, y) правого нижнего угла образа
+        // (x, y) Р»РµРІРѕРіРѕ РІРµСЂС…РЅРµРіРѕ СѓРіР»Р° Рё (x, y) РїСЂР°РІРѕРіРѕ РЅРёР¶РЅРµРіРѕ СѓРіР»Р° РѕР±СЂР°Р·Р°
         Integer[] coords = imgCoords(img);
         int sizeX = coords[2]-coords[0];
         int sizeY = coords[3]-coords[1];
-        System.out.println("Размер по X:" + sizeX);
-        System.out.println("Размер по Y:" + sizeY);
+        System.out.println("Р Р°Р·РјРµСЂ РїРѕ X:" + sizeX);
+        System.out.println("Р Р°Р·РјРµСЂ РїРѕ Y:" + sizeY);
         Integer sign = 0;
         Double[] angles = new Double[4];
 
-        // Две точки пересечения с прямоугольником для левого нижнего угла
+        // Р”РІРµ С‚РѕС‡РєРё РїРµСЂРµСЃРµС‡РµРЅРёСЏ СЃ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРј РґР»СЏ Р»РµРІРѕРіРѕ РЅРёР¶РЅРµРіРѕ СѓРіР»Р°
         System.out.print("Left Bottom: ");
         Integer[] cornerLeftBottom =
                 calculCoords(coords[0], coords[2], -coords[3], coords[1], img);
         sign = Math.abs(cornerLeftBottom[3]-cornerLeftBottom[5]) -
                 (Math.abs(cornerLeftBottom[0]-cornerLeftBottom[4]));
         angles[0] = (sign < 0) ? -angle(cornerLeftBottom) : angle(cornerLeftBottom);
-        // Две точки пересечения с прямоугольником для левого верхнего угла
+        // Р”РІРµ С‚РѕС‡РєРё РїРµСЂРµСЃРµС‡РµРЅРёСЏ СЃ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРј РґР»СЏ Р»РµРІРѕРіРѕ РІРµСЂС…РЅРµРіРѕ СѓРіР»Р°
         System.out.print("Left Top: ");
         Integer[] cornerLeftTop =
                 calculCoords(coords[0], coords[2], coords[1], coords[3], img);
         sign = Math.abs(cornerLeftTop[0]-cornerLeftTop[4]) -
                 (Math.abs(cornerLeftTop[3]-cornerLeftTop[5]));
         angles[1] = (sign < 0) ? -angle(cornerLeftTop) : angle(cornerLeftTop);
-        // Две точки пересечения с прямоугольником для правого верхнего угла
+        // Р”РІРµ С‚РѕС‡РєРё РїРµСЂРµСЃРµС‡РµРЅРёСЏ СЃ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРј РґР»СЏ РїСЂР°РІРѕРіРѕ РІРµСЂС…РЅРµРіРѕ СѓРіР»Р°
         System.out.print("Right Top: ");
         Integer[] cornerRightTop =
                 calculCoords(-coords[2], coords[0], coords[1], coords[3], img);
         sign = Math.abs(cornerRightTop[3]-cornerRightTop[5]) -
                 (Math.abs(cornerRightTop[0]-cornerRightTop[4]));
         angles[2] = (sign < 0) ? -angle(cornerRightTop) : angle(cornerRightTop);
-        // Две точки пересечения с прямоугольником для правого нижнего угла
+        // Р”РІРµ С‚РѕС‡РєРё РїРµСЂРµСЃРµС‡РµРЅРёСЏ СЃ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРј РґР»СЏ РїСЂР°РІРѕРіРѕ РЅРёР¶РЅРµРіРѕ СѓРіР»Р°
         System.out.print("Right Bottom: ");
         Integer[] cornerRightBottom =
                 calculCoords(-coords[2], coords[0], -coords[3], coords[1], img);
@@ -478,7 +478,7 @@ public class Processing {
         return angles;
     }
 
-    // Метод для вычисления координат вершин прямоугольного треугольника
+    // РњРµС‚РѕРґ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РєРѕРѕСЂРґРёРЅР°С‚ РІРµСЂС€РёРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРѕРіРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
     public static Integer[] calculCoords(int xFrom, int xTo, int yFrom, int yTo, Integer[][] img) {
         Integer[] coords = new Integer[6];
         int xFromAbs = Math.abs(xFrom);
@@ -503,23 +503,23 @@ public class Processing {
         return coords;
     }
 
-    // Метод для вычисления наименьшего угла у прямоугольного треугольника
+    // РњРµС‚РѕРґ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РЅР°РёРјРµРЅСЊС€РµРіРѕ СѓРіР»Р° Сѓ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРѕРіРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
     public static double angle(Integer[] triangle) {
-        // Проверка, является ли образ "прямым"
+        // РџСЂРѕРІРµСЂРєР°, СЏРІР»СЏРµС‚СЃСЏ Р»Рё РѕР±СЂР°Р· "РїСЂСЏРјС‹Рј"
         if(triangle[1].equals(triangle[3]))
             return 0.0;
-        // Вычисление гипотенузы прямоугольного треугольника
+        // Р’С‹С‡РёСЃР»РµРЅРёРµ РіРёРїРѕС‚РµРЅСѓР·С‹ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРѕРіРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
         double hypo = Math.sqrt((triangle[0]-triangle[2])*(triangle[0]-triangle[2]) +
                 (triangle[1]-triangle[3])*(triangle[1]-triangle[3]));
-        // Малый катет прямоугольного треугольника
+        // РњР°Р»С‹Р№ РєР°С‚РµС‚ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРѕРіРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
         double leg = Math.min(Math.abs(triangle[0]-triangle[2]), Math.abs(triangle[1]-triangle[3]));
-        // Вычисление угла поворота
+        // Р’С‹С‡РёСЃР»РµРЅРёРµ СѓРіР»Р° РїРѕРІРѕСЂРѕС‚Р°
         double angle = Math.toDegrees(Math.asin(leg/hypo));
         return angle;
 
     }
 
-    // Поворот образа
+    // РџРѕРІРѕСЂРѕС‚ РѕР±СЂР°Р·Р°
     public static Integer[][] rotation(Integer[][] img) {
         Integer matrixSizeY = img.length;
         Integer matrixSizeX = img[0].length;
@@ -600,10 +600,10 @@ public class Processing {
         return resultingMatrix;
     }
 
-    // Поворот матрицы на заданный угол
+    // РџРѕРІРѕСЂРѕС‚ РјР°С‚СЂРёС†С‹ РЅР° Р·Р°РґР°РЅРЅС‹Р№ СѓРіРѕР»
     public static Integer[][] rot(Integer[][] img, Double angle) {
-        Integer matrixSizeY = img.length;    // Высота
-        Integer matrixSizeX = img[0].length; // Ширина
+        Integer matrixSizeY = img.length;    // Р’С‹СЃРѕС‚Р°
+        Integer matrixSizeX = img[0].length; // РЁРёСЂРёРЅР°
 
         Double radians = angle/180.0 * Math.PI;
 
@@ -631,10 +631,10 @@ public class Processing {
         return resultingMatrix;
     }
 
-    // Функция для вычисления значения пикселя
+    // Р¤СѓРЅРєС†РёСЏ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ РїРёРєСЃРµР»СЏ
     public static Integer sampleAt(Integer[][] img, int x, int y) {
-        Integer matrixSizeY = img.length;    // Высота
-        Integer matrixSizeX = img[0].length; // Ширина
+        Integer matrixSizeY = img.length;    // Р’С‹СЃРѕС‚Р°
+        Integer matrixSizeX = img[0].length; // РЁРёСЂРёРЅР°
         Integer clamp = 1;
         if (x < 0) {
             x = 0; clamp = 0;

@@ -10,9 +10,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ProcessingApplication {
     public static Images images = new Images();
-    public static String imgName = "";    // Путь к файлу
-    public static Double picCoef = 0.0;   // Коэффициент для масштабирования изображения
-    public static BufferedImage resImage; // Результат преобразования изображения
+    public static String imgName = "";    // РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ
+    public static Double picCoef = 0.0;   // РљРѕСЌС„С„РёС†РёРµРЅС‚ РґР»СЏ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+    public static BufferedImage resImage; // Р РµР·СѓР»СЊС‚Р°С‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
 
     public static void main(String[] args) throws IOException {
 
@@ -20,113 +20,113 @@ public class ProcessingApplication {
         //preprocImg("\\cat.png");
         //preprocImg(images.test10_0);
 
-        Color mainColor = new Color(204, 220, 236); // Основной цвет окна
-        Color imgColor = new Color(206, 206, 206);  // Цвет для панелей с изображениями
+        Color mainColor = new Color(204, 220, 236); // РћСЃРЅРѕРІРЅРѕР№ С†РІРµС‚ РѕРєРЅР°
+        Color imgColor = new Color(206, 206, 206);  // Р¦РІРµС‚ РґР»СЏ РїР°РЅРµР»РµР№ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё
 
-        // Области главного окна
+        // РћР±Р»Р°СЃС‚Рё РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
         // ---------------------
-        // Создание основного окна
+        // РЎРѕР·РґР°РЅРёРµ РѕСЃРЅРѕРІРЅРѕРіРѕ РѕРєРЅР°
         final JFrame mainFrame = new JFrame("Preprocessor Application");
-        // Создание основной панели для расположения всех элементов
+        // РЎРѕР·РґР°РЅРёРµ РѕСЃРЅРѕРІРЅРѕР№ РїР°РЅРµР»Рё РґР»СЏ СЂР°СЃРїРѕР»РѕР¶РµРЅРёСЏ РІСЃРµС… СЌР»РµРјРµРЅС‚РѕРІ
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        // Создание панели для открытого изображения
+        // РЎРѕР·РґР°РЅРёРµ РїР°РЅРµР»Рё РґР»СЏ РѕС‚РєСЂС‹С‚РѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
         JPanel panelImgOpen = new JPanel(new BorderLayout());
-        // Создание панели для результирующего изображения
+        // РЎРѕР·РґР°РЅРёРµ РїР°РЅРµР»Рё РґР»СЏ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
         JPanel panelImgResult = new JPanel(new BorderLayout());
-        // Создание центральной панели
+        // РЎРѕР·РґР°РЅРёРµ С†РµРЅС‚СЂР°Р»СЊРЅРѕР№ РїР°РЅРµР»Рё
         JPanel panelArrow = new JPanel(new GridLayout());
-        // Создание верхнего меню
+        // РЎРѕР·РґР°РЅРёРµ РІРµСЂС…РЅРµРіРѕ РјРµРЅСЋ
         JMenuBar menuBar = new JMenuBar();
 
-        // Элементы главного окна
+        // Р­Р»РµРјРµРЅС‚С‹ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
         // ----------------------
-        // Создание кнопки для преобразования
-        JButton processing = new JButton("<html><font size=4>Преобразовать</html>");
-        // Создание кнопки для открытия изображения
-        JButton uploadImg = new JButton("Открыть");
-        // Создание кнопки для сохранения изображения
-        JButton saveImg = new JButton("Сохранить");
-        // Создание декоративного элемента со стрелкой
-        final JLabel arrowElem = new JLabel("<html><p style=\"font-size: 800%\">&#10140;</p></html>",
+        // РЎРѕР·РґР°РЅРёРµ РєРЅРѕРїРєРё РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
+        JButton processing = new JButton("<html><font size=4>РџСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ</html>");
+        // РЎРѕР·РґР°РЅРёРµ РєРЅРѕРїРєРё РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+        JButton uploadImg = new JButton("РћС‚РєСЂС‹С‚СЊ");
+        // РЎРѕР·РґР°РЅРёРµ РєРЅРѕРїРєРё РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+        JButton saveImg = new JButton("РЎРѕС…СЂР°РЅРёС‚СЊ");
+        // РЎРѕР·РґР°РЅРёРµ РґРµРєРѕСЂР°С‚РёРІРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРѕ СЃС‚СЂРµР»РєРѕР№
+        final JLabel arrowElem = new JLabel("<html><p style=\"font-size: 100px\">&#10140;</p></html>",
                 SwingConstants.CENTER);
-        // Создание кнопки вызова настроек в поле меню
-        JButton openSettingsMenu = new JButton("Настройки");
-        // Создание кнопки вызова информационного окна в поле меню
-        JButton openInfoWindow = new JButton("Информационное окно");
-        // Создание области для открытого изображения
+        // РЎРѕР·РґР°РЅРёРµ РєРЅРѕРїРєРё РІС‹Р·РѕРІР° РЅР°СЃС‚СЂРѕРµРє РІ РїРѕР»Рµ РјРµРЅСЋ
+        JButton openSettingsMenu = new JButton("РќР°СЃС‚СЂРѕР№РєРё");
+        // РЎРѕР·РґР°РЅРёРµ РєРЅРѕРїРєРё РІС‹Р·РѕРІР° РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРіРѕ РѕРєРЅР° РІ РїРѕР»Рµ РјРµРЅСЋ
+        JButton openInfoWindow = new JButton("РРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРµ РѕРєРЅРѕ");
+        // РЎРѕР·РґР°РЅРёРµ РѕР±Р»Р°СЃС‚Рё РґР»СЏ РѕС‚РєСЂС‹С‚РѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
         final JLabel openImg = new JLabel(new ImageIcon());
-        // Создание области для результирующего изображения
+        // РЎРѕР·РґР°РЅРёРµ РѕР±Р»Р°СЃС‚Рё РґР»СЏ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
         final JLabel resultImg = new JLabel(new ImageIcon());
-        // Окно для выбора файла
+        // РћРєРЅРѕ РґР»СЏ РІС‹Р±РѕСЂР° С„Р°Р№Р»Р°
         JFileChooser fileChooser = new JFileChooser(Config.path);
 
-        // Области окна настроек
+        // РћР±Р»Р°СЃС‚Рё РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
         // ---------------------
-        // Создание модального окна для настройки
-        JDialog settingsWindow = new JDialog(mainFrame, "Настройки", true);
-        // Создание панели для окна настроек
+        // РЎРѕР·РґР°РЅРёРµ РјРѕРґР°Р»СЊРЅРѕРіРѕ РѕРєРЅР° РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
+        JDialog settingsWindow = new JDialog(mainFrame, "РќР°СЃС‚СЂРѕР№РєРё", true);
+        // РЎРѕР·РґР°РЅРёРµ РїР°РЅРµР»Рё РґР»СЏ РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
         JPanel settingsPanel = new JPanel(new GridBagLayout());
-        // Создание панели для выбора вида ротации
+        // РЎРѕР·РґР°РЅРёРµ РїР°РЅРµР»Рё РґР»СЏ РІС‹Р±РѕСЂР° РІРёРґР° СЂРѕС‚Р°С†РёРё
         JPanel choicePanel = new JPanel();
-        // Создание панели для завершения настроек
+        // РЎРѕР·РґР°РЅРёРµ РїР°РЅРµР»Рё РґР»СЏ Р·Р°РІРµСЂС€РµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє
         JPanel settingsResultPanel = new JPanel();
 
-        // Элементы окна настроек
+        // Р­Р»РµРјРµРЅС‚С‹ РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
         // ----------------------
-        // Создание чекбокса для трансляции
-        JCheckBoxMenuItem translation = new JCheckBoxMenuItem("Трансляция");
-        // Создание чекбокса для масштабирования
-        JCheckBoxMenuItem scaling = new JCheckBoxMenuItem("Масштабирование");
-        // Создание чекбокса для ротации
-        JCheckBoxMenuItem rotation = new JCheckBoxMenuItem("Ротация");
-        // Создание группы для выбора способа ротации
+        // РЎРѕР·РґР°РЅРёРµ С‡РµРєР±РѕРєСЃР° РґР»СЏ С‚СЂР°РЅСЃР»СЏС†РёРё
+        JCheckBoxMenuItem translation = new JCheckBoxMenuItem("РўСЂР°РЅСЃР»СЏС†РёСЏ");
+        // РЎРѕР·РґР°РЅРёРµ С‡РµРєР±РѕРєСЃР° РґР»СЏ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ
+        JCheckBoxMenuItem scaling = new JCheckBoxMenuItem("РњР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµ");
+        // РЎРѕР·РґР°РЅРёРµ С‡РµРєР±РѕРєСЃР° РґР»СЏ СЂРѕС‚Р°С†РёРё
+        JCheckBoxMenuItem rotation = new JCheckBoxMenuItem("Р РѕС‚Р°С†РёСЏ");
+        // РЎРѕР·РґР°РЅРёРµ РіСЂСѓРїРїС‹ РґР»СЏ РІС‹Р±РѕСЂР° СЃРїРѕСЃРѕР±Р° СЂРѕС‚Р°С†РёРё
         ButtonGroup choiceGroup = new ButtonGroup();
-        // Создание радиокнопки для автоматической ротации
-        JRadioButtonMenuItem auto = new JRadioButtonMenuItem("Авто");
-        // Создание радиокнопки для ввода угла ротации
-        JRadioButtonMenuItem angle = new JRadioButtonMenuItem("Угол:");
-        // Создание поля ввода для угла ротации
+        // РЎРѕР·РґР°РЅРёРµ СЂР°РґРёРѕРєРЅРѕРїРєРё РґР»СЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ СЂРѕС‚Р°С†РёРё
+        JRadioButtonMenuItem auto = new JRadioButtonMenuItem("РђРІС‚Рѕ");
+        // РЎРѕР·РґР°РЅРёРµ СЂР°РґРёРѕРєРЅРѕРїРєРё РґР»СЏ РІРІРѕРґР° СѓРіР»Р° СЂРѕС‚Р°С†РёРё
+        JRadioButtonMenuItem angle = new JRadioButtonMenuItem("РЈРіРѕР»:");
+        // РЎРѕР·РґР°РЅРёРµ РїРѕР»СЏ РІРІРѕРґР° РґР»СЏ СѓРіР»Р° СЂРѕС‚Р°С†РёРё
         JTextField angleStr = new JTextField("0.0", 4);
-        // Создание кнопки для применения настроек
-        JButton saveSettings = new JButton("Применить");
-        // Создание кнопки для возврата настроек к изначальным
-        JButton defaultSettings = new JButton("По умолчанию");
+        // РЎРѕР·РґР°РЅРёРµ РєРЅРѕРїРєРё РґР»СЏ РїСЂРёРјРµРЅРµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє
+        JButton saveSettings = new JButton("РџСЂРёРјРµРЅРёС‚СЊ");
+        // РЎРѕР·РґР°РЅРёРµ РєРЅРѕРїРєРё РґР»СЏ РІРѕР·РІСЂР°С‚Р° РЅР°СЃС‚СЂРѕРµРє Рє РёР·РЅР°С‡Р°Р»СЊРЅС‹Рј
+        JButton defaultSettings = new JButton("РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ");
 
-        // Области окна информации
+        // РћР±Р»Р°СЃС‚Рё РѕРєРЅР° РёРЅС„РѕСЂРјР°С†РёРё
         // -----------------------
-        // Создание немодального окна для вывода информации о преобразовании изображения
-        JDialog infoWindow = new JDialog(mainFrame, "Информационное окно", false);
-        // Создание области для элементов отображения информации
+        // РЎРѕР·РґР°РЅРёРµ РЅРµРјРѕРґР°Р»СЊРЅРѕРіРѕ РѕРєРЅР° РґР»СЏ РІС‹РІРѕРґР° РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРё РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+        JDialog infoWindow = new JDialog(mainFrame, "РРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРµ РѕРєРЅРѕ", false);
+        // РЎРѕР·РґР°РЅРёРµ РѕР±Р»Р°СЃС‚Рё РґР»СЏ СЌР»РµРјРµРЅС‚РѕРІ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё
         JPanel infoPanel = new JPanel(new BorderLayout());
 
-        // Элементы окна информации
+        // Р­Р»РµРјРµРЅС‚С‹ РѕРєРЅР° РёРЅС„РѕСЂРјР°С†РёРё
         // ------------------------
-        // Создание поля для отображения информации
+        // РЎРѕР·РґР°РЅРёРµ РїРѕР»СЏ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё
         JTextArea informationText = new JTextArea(20, 28);
 
-        // Настройка элементов главного окна
+        // РќР°СЃС‚СЂРѕР№РєР° СЌР»РµРјРµРЅС‚РѕРІ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
         // ---------------------------------
         ImageIcon icon = new ImageIcon(Objects.requireNonNull(
                 ProcessingApplication.class.getResource("logo.png")));
         mainFrame.setIconImage(icon.getImage());
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);             // Остановить приложение при закрытии
-        mainFrame.setResizable(false);                                        // Не изменять размер
-        mainFrame.setSize(700, 400);                              // Размер окна
-        mainFrame.setLocationRelativeTo(null);                                // Окно в центре экрана
-        mainPanel.setBackground(mainColor);                                   // Цвет основной панели
-        panelImgOpen.setPreferredSize(new Dimension(127, 140));   // Размер панели для открытия
-        panelImgOpen.setBackground(imgColor);                                 // Цвет панели для открытия
-        panelImgResult.setPreferredSize(new Dimension(127, 140)); // Размер панели для результата
-        panelImgResult.setBackground(imgColor);                               // Цвет панели для результата
-        panelArrow.setPreferredSize(new Dimension(10, 140));      // Размер панели для стрелки
-        panelArrow.setBackground(mainColor);                                  // Цвет панели для стрелки
-        processing.setMargin(new Insets(5, 10, 5, 10));  // Отступы кнопки преобразования
-        // Настройка кнопки вызова настроек
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);             // РћСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРёР»РѕР¶РµРЅРёРµ РїСЂРё Р·Р°РєСЂС‹С‚РёРё
+        mainFrame.setResizable(false);                                        // РќРµ РёР·РјРµРЅСЏС‚СЊ СЂР°Р·РјРµСЂ
+        mainFrame.setSize(700, 410);                              // Р Р°Р·РјРµСЂ РѕРєРЅР°
+        mainFrame.setLocationRelativeTo(null);                                // РћРєРЅРѕ РІ С†РµРЅС‚СЂРµ СЌРєСЂР°РЅР°
+        mainPanel.setBackground(mainColor);                                   // Р¦РІРµС‚ РѕСЃРЅРѕРІРЅРѕР№ РїР°РЅРµР»Рё
+        panelImgOpen.setPreferredSize(new Dimension(127, 140));   // Р Р°Р·РјРµСЂ РїР°РЅРµР»Рё РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ
+        panelImgOpen.setBackground(imgColor);                                 // Р¦РІРµС‚ РїР°РЅРµР»Рё РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ
+        panelImgResult.setPreferredSize(new Dimension(127, 140)); // Р Р°Р·РјРµСЂ РїР°РЅРµР»Рё РґР»СЏ СЂРµР·СѓР»СЊС‚Р°С‚Р°
+        panelImgResult.setBackground(imgColor);                               // Р¦РІРµС‚ РїР°РЅРµР»Рё РґР»СЏ СЂРµР·СѓР»СЊС‚Р°С‚Р°
+        panelArrow.setPreferredSize(new Dimension(10, 140));      // Р Р°Р·РјРµСЂ РїР°РЅРµР»Рё РґР»СЏ СЃС‚СЂРµР»РєРё
+        panelArrow.setBackground(mainColor);                                  // Р¦РІРµС‚ РїР°РЅРµР»Рё РґР»СЏ СЃС‚СЂРµР»РєРё
+        processing.setMargin(new Insets(5, 10, 5, 10));  // РћС‚СЃС‚СѓРїС‹ РєРЅРѕРїРєРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
+        // РќР°СЃС‚СЂРѕР№РєР° РєРЅРѕРїРєРё РІС‹Р·РѕРІР° РЅР°СЃС‚СЂРѕРµРє
         openSettingsMenu.setFocusPainted(false);
         openSettingsMenu.setOpaque(false);
         openSettingsMenu.setContentAreaFilled(false);
         openSettingsMenu.setBorderPainted(false);
-        // Настройка кнопки вызова окна информации
+        // РќР°СЃС‚СЂРѕР№РєР° РєРЅРѕРїРєРё РІС‹Р·РѕРІР° РѕРєРЅР° РёРЅС„РѕСЂРјР°С†РёРё
         openInfoWindow.setFocusPainted(false);
         openInfoWindow.setOpaque(false);
         openInfoWindow.setContentAreaFilled(false);
@@ -136,15 +136,15 @@ public class ProcessingApplication {
         FileNameExtensionFilter filterPNG = new FileNameExtensionFilter("PNG(*.png)", "png");
         fileChooser.setFileFilter(filterPNG);
 
-        // Настройка элементов окна настроек
+        // РќР°СЃС‚СЂРѕР№РєР° СЌР»РµРјРµРЅС‚РѕРІ РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
         // ---------------------------------
-        settingsWindow.setSize(260, 200); // Размер окна
-        settingsWindow.setLocationRelativeTo(null);   // Расположение
-        settingsWindow.setResizable(false);           // Возможность изменять размер
-        translation.setState(Config.translation);     // Значение чекбокса трансляции
-        scaling.setState(Config.scaling);             // Значение чекбокса масштабирования
-        rotation.setState(Config.rotation);           // Значение чекбокса ротации
-        // Значения в области выбора способа поворота
+        settingsWindow.setSize(260, 200); // Р Р°Р·РјРµСЂ РѕРєРЅР°
+        settingsWindow.setLocationRelativeTo(null);   // Р Р°СЃРїРѕР»РѕР¶РµРЅРёРµ
+        settingsWindow.setResizable(false);           // Р’РѕР·РјРѕР¶РЅРѕСЃС‚СЊ РёР·РјРµРЅСЏС‚СЊ СЂР°Р·РјРµСЂ
+        translation.setState(Config.translation);     // Р—РЅР°С‡РµРЅРёРµ С‡РµРєР±РѕРєСЃР° С‚СЂР°РЅСЃР»СЏС†РёРё
+        scaling.setState(Config.scaling);             // Р—РЅР°С‡РµРЅРёРµ С‡РµРєР±РѕРєСЃР° РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ
+        rotation.setState(Config.rotation);           // Р—РЅР°С‡РµРЅРёРµ С‡РµРєР±РѕРєСЃР° СЂРѕС‚Р°С†РёРё
+        // Р—РЅР°С‡РµРЅРёСЏ РІ РѕР±Р»Р°СЃС‚Рё РІС‹Р±РѕСЂР° СЃРїРѕСЃРѕР±Р° РїРѕРІРѕСЂРѕС‚Р°
         if(Config.rotation) {
             auto.setEnabled(true);
             angle.setEnabled(true);
@@ -164,24 +164,24 @@ public class ProcessingApplication {
             angleStr.setEditable(false);
         }
 
-        // Настройка элементов информационного окна
+        // РќР°СЃС‚СЂРѕР№РєР° СЌР»РµРјРµРЅС‚РѕРІ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРіРѕ РѕРєРЅР°
         // ----------------------------------------
-        infoWindow.setSize(350, 400); // Размер информационного окна
-        infoWindow.setMinimumSize(new Dimension(350, 400)); // Минимальный размер окна
-        infoWindow.setLocationRelativeTo(null); // Расположение окна
+        infoWindow.setSize(350, 400); // Р Р°Р·РјРµСЂ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРіРѕ РѕРєРЅР°
+        infoWindow.setMinimumSize(new Dimension(350, 400)); // РњРёРЅРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ РѕРєРЅР°
+        infoWindow.setLocationRelativeTo(null); // Р Р°СЃРїРѕР»РѕР¶РµРЅРёРµ РѕРєРЅР°
 
-        // Взаимодействия с главным окном
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ РіР»Р°РІРЅС‹Рј РѕРєРЅРѕРј
         // ------------------------------
-        // Взаимодействие с кнопкой открытия изображения
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ РєРЅРѕРїРєРѕР№ РѕС‚РєСЂС‹С‚РёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
         uploadImg.addActionListener(clickUpload -> {
-            // Отобразить окно выбора файла
+            // РћС‚РѕР±СЂР°Р·РёС‚СЊ РѕРєРЅРѕ РІС‹Р±РѕСЂР° С„Р°Р№Р»Р°
             int result = fileChooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION ) {
                 BufferedImage openPic;
                 try {
                     imgName = fileChooser.getSelectedFile().toString();
                     openPic = ImageIO.read(fileChooser.getSelectedFile());
-                    // Коэффициент сжатия изображения для вывода в интерфейсе
+                    // РљРѕСЌС„С„РёС†РёРµРЅС‚ СЃР¶Р°С‚РёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РґР»СЏ РІС‹РІРѕРґР° РІ РёРЅС‚РµСЂС„РµР№СЃРµ
                     picCoef = 250.0/Math.max(openPic.getWidth(), openPic.getHeight());
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
@@ -192,15 +192,15 @@ public class ProcessingApplication {
                 resultImg.setIcon(new ImageIcon());
             }
         });
-        // Взаимодействие с кнопкой сохранения изображения
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ РєРЅРѕРїРєРѕР№ СЃРѕС…СЂР°РЅРµРЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
         saveImg.addActionListener(clickSave -> {
-            // Ошибка, если нет изображения для сохранения
+            // РћС€РёР±РєР°, РµСЃР»Рё РЅРµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
             if(resultImg.getIcon().getIconHeight() == -1)
                 JOptionPane.showMessageDialog(mainFrame,
-                        "Результирующее изображение не найдено",
+                        "Р РµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ",
                         "404", JOptionPane.ERROR_MESSAGE);
             else {
-                // Отобразить окно выбора файла
+                // РћС‚РѕР±СЂР°Р·РёС‚СЊ РѕРєРЅРѕ РІС‹Р±РѕСЂР° С„Р°Р№Р»Р°
                 fileChooser.resetChoosableFileFilters();
                 int result = fileChooser.showSaveDialog(fileChooser);
                 if (result == JFileChooser.APPROVE_OPTION ) {
@@ -221,21 +221,21 @@ public class ProcessingApplication {
                         ImageIO.write(resImage,
                                 saveFile.substring(saveFile.lastIndexOf(".")+1), output);
                         JOptionPane.showMessageDialog(fileChooser,
-                                "Файл (" + saveFile + ") сохранен");
+                                "Р¤Р°Р№Р» (" + saveFile + ") СЃРѕС…СЂР°РЅРµРЅ");
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
             }
         });
-        // Взаимодействие с кнопкой преобразования
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ РєРЅРѕРїРєРѕР№ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
         processing.addActionListener(clickProcess -> {
-            // Запуск препроцессора и отображение результата
+            // Р—Р°РїСѓСЃРє РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂР° Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚Р°
             try {
-                // Ошибка, если нет изображения для преобразования
+                // РћС€РёР±РєР°, РµСЃР»Рё РЅРµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
                 if(Objects.equals(imgName, "")) {
                     JOptionPane.showMessageDialog(mainFrame,
-                            "Изображение для преобразования не найдено",
+                            "РР·РѕР±СЂР°Р¶РµРЅРёРµ РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РЅРµ РЅР°Р№РґРµРЅРѕ",
                             "404", JOptionPane.ERROR_MESSAGE);
                 } else {
                     Config.infoStr = "";
@@ -250,9 +250,9 @@ public class ProcessingApplication {
                 throw new RuntimeException(ex);
             }
         });
-        // Взаимодействие с кнопкой вызова настроек
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ РєРЅРѕРїРєРѕР№ РІС‹Р·РѕРІР° РЅР°СЃС‚СЂРѕРµРє
         openSettingsMenu.addActionListener(clickSettings -> settingsWindow.setVisible(true));
-        // Взаимодействие с кнопкой вызова информационного меню
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ РєРЅРѕРїРєРѕР№ РІС‹Р·РѕРІР° РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРіРѕ РјРµРЅСЋ
         openInfoWindow.addActionListener(clickInfo -> {
             if(!Config.infoWindow) {
                 Config.infoWindow = true;
@@ -261,13 +261,13 @@ public class ProcessingApplication {
             }
         });
 
-        // Взаимодействия с окном настроек
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ РѕРєРЅРѕРј РЅР°СЃС‚СЂРѕРµРє
         // -------------------------------
-        // Взаимодействие с радиокнопкой автоповорота
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ СЂР°РґРёРѕРєРЅРѕРїРєРѕР№ Р°РІС‚РѕРїРѕРІРѕСЂРѕС‚Р°
         auto.addActionListener(clickAuto -> angleStr.setEditable(false));
-        // Взаимодействие с радиокнопкой выбора угла
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ СЂР°РґРёРѕРєРЅРѕРїРєРѕР№ РІС‹Р±РѕСЂР° СѓРіР»Р°
         angle.addActionListener(clickAngle -> angleStr.setEditable(true));
-        // Взаимодействие с чекбоксом ротации
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ С‡РµРєР±РѕРєСЃРѕРј СЂРѕС‚Р°С†РёРё
         rotation.addActionListener(clickRot -> {
             if(rotation.getState()) {
                 auto.setEnabled(true);
@@ -280,7 +280,7 @@ public class ProcessingApplication {
                 angleStr.setEditable(false);
             }
         });
-        // Взаимодействие с кнопкой настроек по умолчанию
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ РєРЅРѕРїРєРѕР№ РЅР°СЃС‚СЂРѕРµРє РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         defaultSettings.addActionListener(clickDefault -> {
             translation.setState(true);
             scaling.setState(true);
@@ -291,7 +291,7 @@ public class ProcessingApplication {
             angleStr.setEditable(false);
             angleStr.setText("0.0");
         });
-        // Взаимодействие с кнопкой применения настроек
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃ РєРЅРѕРїРєРѕР№ РїСЂРёРјРµРЅРµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє
         saveSettings.addActionListener(clickSave -> {
             Config.translation = translation.getState();
             Config.scaling = scaling.getState();
@@ -301,7 +301,7 @@ public class ProcessingApplication {
                 Config.angle = Double.parseDouble(angleStr.getText());
         });
 
-        // Взаимодействия с информационным окном
+        // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹Рј РѕРєРЅРѕРј
         // -------------------------------------
         infoWindow.addWindowListener(new WindowListener() {
             @Override
@@ -322,11 +322,11 @@ public class ProcessingApplication {
             public void windowDeactivated(WindowEvent e) {}
         });
 
-        // Добавление элементов главного окна
+        // Р”РѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚РѕРІ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
         // ----------------------------------
-        // Создание ограничений для основного окна
+        // РЎРѕР·РґР°РЅРёРµ РѕРіСЂР°РЅРёС‡РµРЅРёР№ РґР»СЏ РѕСЃРЅРѕРІРЅРѕРіРѕ РѕРєРЅР°
         GridBagConstraints constraintsMainPanel = new GridBagConstraints();
-        // Создание ограничений для окна настроек
+        // РЎРѕР·РґР°РЅРёРµ РѕРіСЂР°РЅРёС‡РµРЅРёР№ РґР»СЏ РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
         GridBagConstraints constraintsSettings = new GridBagConstraints();
         constraintsMainPanel.anchor     = GridBagConstraints.NORTH;
         constraintsMainPanel.ipadx      = 127;
@@ -336,67 +336,67 @@ public class ProcessingApplication {
         constraintsMainPanel.insets.top = 5;
         constraintsMainPanel.gridx      = 0;
         constraintsMainPanel.gridy      = 0;
-        mainPanel.add(panelImgOpen, constraintsMainPanel);   // Панель открытия -> основная панель
+        mainPanel.add(panelImgOpen, constraintsMainPanel);   // РџР°РЅРµР»СЊ РѕС‚РєСЂС‹С‚РёСЏ -> РѕСЃРЅРѕРІРЅР°СЏ РїР°РЅРµР»СЊ
         constraintsMainPanel.gridx = 2;
-        mainPanel.add(panelImgResult, constraintsMainPanel); // Панель результата -> основная панель
+        mainPanel.add(panelImgResult, constraintsMainPanel); // РџР°РЅРµР»СЊ СЂРµР·СѓР»СЊС‚Р°С‚Р° -> РѕСЃРЅРѕРІРЅР°СЏ РїР°РЅРµР»СЊ
         constraintsMainPanel.gridx = 1;
-        mainPanel.add(panelArrow, constraintsMainPanel);     // Панель стрелки -> основная панель
-        panelArrow.add(arrowElem);                           // Элемент стрелки -> панель стрелки
-        panelImgOpen.add(openImg, BorderLayout.CENTER);      // Элемент открытия -> панель открытия
-        panelImgResult.add(resultImg, BorderLayout.CENTER);  // Элемент результата -> панель результата
-        panelImgOpen.add(uploadImg, BorderLayout.SOUTH);     // Кнопка открытия -> панель открытия
-        panelImgResult.add(saveImg, BorderLayout.SOUTH);     // Кнопка сохранения -> панель результата
+        mainPanel.add(panelArrow, constraintsMainPanel);     // РџР°РЅРµР»СЊ СЃС‚СЂРµР»РєРё -> РѕСЃРЅРѕРІРЅР°СЏ РїР°РЅРµР»СЊ
+        panelArrow.add(arrowElem);                           // Р­Р»РµРјРµРЅС‚ СЃС‚СЂРµР»РєРё -> РїР°РЅРµР»СЊ СЃС‚СЂРµР»РєРё
+        panelImgOpen.add(openImg, BorderLayout.CENTER);      // Р­Р»РµРјРµРЅС‚ РѕС‚РєСЂС‹С‚РёСЏ -> РїР°РЅРµР»СЊ РѕС‚РєСЂС‹С‚РёСЏ
+        panelImgResult.add(resultImg, BorderLayout.CENTER);  // Р­Р»РµРјРµРЅС‚ СЂРµР·СѓР»СЊС‚Р°С‚Р° -> РїР°РЅРµР»СЊ СЂРµР·СѓР»СЊС‚Р°С‚Р°
+        panelImgOpen.add(uploadImg, BorderLayout.SOUTH);     // РљРЅРѕРїРєР° РѕС‚РєСЂС‹С‚РёСЏ -> РїР°РЅРµР»СЊ РѕС‚РєСЂС‹С‚РёСЏ
+        panelImgResult.add(saveImg, BorderLayout.SOUTH);     // РљРЅРѕРїРєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ -> РїР°РЅРµР»СЊ СЂРµР·СѓР»СЊС‚Р°С‚Р°
         constraintsMainPanel.ipadx     = 0;
         constraintsMainPanel.ipady     = 0;
         constraintsMainPanel.gridx     = 0;
         constraintsMainPanel.gridy     = 1;
         constraintsMainPanel.gridwidth = 3;
-        mainPanel.add(processing, constraintsMainPanel); // Кнопка преобразования -> основная панель
-        menuBar.add(openSettingsMenu);                   // Кнопка вызова меню -> область меню
-        menuBar.add(openInfoWindow);                     // Кнопка вызова информации -> область меню
-        mainFrame.setJMenuBar(menuBar);                  // Область меню -> главное окно
-        mainFrame.add(mainPanel);                        // Основная панель -> главное окно
+        mainPanel.add(processing, constraintsMainPanel); // РљРЅРѕРїРєР° РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ -> РѕСЃРЅРѕРІРЅР°СЏ РїР°РЅРµР»СЊ
+        menuBar.add(openSettingsMenu);                   // РљРЅРѕРїРєР° РІС‹Р·РѕРІР° РјРµРЅСЋ -> РѕР±Р»Р°СЃС‚СЊ РјРµРЅСЋ
+        menuBar.add(openInfoWindow);                     // РљРЅРѕРїРєР° РІС‹Р·РѕРІР° РёРЅС„РѕСЂРјР°С†РёРё -> РѕР±Р»Р°СЃС‚СЊ РјРµРЅСЋ
+        mainFrame.setJMenuBar(menuBar);                  // РћР±Р»Р°СЃС‚СЊ РјРµРЅСЋ -> РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ
+        mainFrame.add(mainPanel);                        // РћСЃРЅРѕРІРЅР°СЏ РїР°РЅРµР»СЊ -> РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ
 
-        // Добавление элементов окна настроек
+        // Р”РѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚РѕРІ РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
         // ----------------------------------
         constraintsSettings.fill      = GridBagConstraints.HORIZONTAL;
         constraintsSettings.gridy     = 0;
         constraintsSettings.gridwidth = 3;
-        settingsPanel.add(translation, constraintsSettings); // Чекбокс трансляции -> панель настроек
+        settingsPanel.add(translation, constraintsSettings); // Р§РµРєР±РѕРєСЃ С‚СЂР°РЅСЃР»СЏС†РёРё -> РїР°РЅРµР»СЊ РЅР°СЃС‚СЂРѕРµРє
         constraintsSettings.gridy = 1;
-        settingsPanel.add(scaling, constraintsSettings);     // Чекбокс масштабирования -> панель настроек
+        settingsPanel.add(scaling, constraintsSettings);     // Р§РµРєР±РѕРєСЃ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ -> РїР°РЅРµР»СЊ РЅР°СЃС‚СЂРѕРµРє
         constraintsSettings.gridy = 2;
-        settingsPanel.add(rotation, constraintsSettings); // Чекбокс ротации -> панель настроек
-        choicePanel.add(auto);                            // Радиокнопка авто -> панель выбора
-        choicePanel.add(angle);                           // Радиокнопка угла -> панель выбора
-        choicePanel.add(angleStr);                        // Поле для угла -> панель выбора
-        choiceGroup.add(auto); choiceGroup.add(angle);    // Добавление в группу выбора
+        settingsPanel.add(rotation, constraintsSettings); // Р§РµРєР±РѕРєСЃ СЂРѕС‚Р°С†РёРё -> РїР°РЅРµР»СЊ РЅР°СЃС‚СЂРѕРµРє
+        choicePanel.add(auto);                            // Р Р°РґРёРѕРєРЅРѕРїРєР° Р°РІС‚Рѕ -> РїР°РЅРµР»СЊ РІС‹Р±РѕСЂР°
+        choicePanel.add(angle);                           // Р Р°РґРёРѕРєРЅРѕРїРєР° СѓРіР»Р° -> РїР°РЅРµР»СЊ РІС‹Р±РѕСЂР°
+        choicePanel.add(angleStr);                        // РџРѕР»Рµ РґР»СЏ СѓРіР»Р° -> РїР°РЅРµР»СЊ РІС‹Р±РѕСЂР°
+        choiceGroup.add(auto); choiceGroup.add(angle);    // Р”РѕР±Р°РІР»РµРЅРёРµ РІ РіСЂСѓРїРїСѓ РІС‹Р±РѕСЂР°
         constraintsSettings.gridy = 3;
-        settingsPanel.add(choicePanel, constraintsSettings); // Панель выбора -> панель настроек
-        settingsResultPanel.add(saveSettings);               // Кнопка применения настроек -> панель результата
-        settingsResultPanel.add(defaultSettings);            // Кнопка по умолчанию -> панель результата
+        settingsPanel.add(choicePanel, constraintsSettings); // РџР°РЅРµР»СЊ РІС‹Р±РѕСЂР° -> РїР°РЅРµР»СЊ РЅР°СЃС‚СЂРѕРµРє
+        settingsResultPanel.add(saveSettings);               // РљРЅРѕРїРєР° РїСЂРёРјРµРЅРµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє -> РїР°РЅРµР»СЊ СЂРµР·СѓР»СЊС‚Р°С‚Р°
+        settingsResultPanel.add(defaultSettings);            // РљРЅРѕРїРєР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ -> РїР°РЅРµР»СЊ СЂРµР·СѓР»СЊС‚Р°С‚Р°
         constraintsSettings.gridy  = 4;
         constraintsSettings.insets = new Insets(20, 0, 0, 0);
-        settingsPanel.add(settingsResultPanel, constraintsSettings); // Панель результата -> панель настроек
-        settingsWindow.add(settingsPanel);                           // Панель настроек -> окно настроек
+        settingsPanel.add(settingsResultPanel, constraintsSettings); // РџР°РЅРµР»СЊ СЂРµР·СѓР»СЊС‚Р°С‚Р° -> РїР°РЅРµР»СЊ РЅР°СЃС‚СЂРѕРµРє
+        settingsWindow.add(settingsPanel);                           // РџР°РЅРµР»СЊ РЅР°СЃС‚СЂРѕРµРє -> РѕРєРЅРѕ РЅР°СЃС‚СЂРѕРµРє
 
-        // Добавление элементов информационного окна
+        // Р”РѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚РѕРІ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРіРѕ РѕРєРЅР°
         // -----------------------------------------
-        infoPanel.add(new JScrollPane(informationText)); // Текстовый элемент -> панель информационная панель
-        infoWindow.add(infoPanel);                       // Информационная панель -> информационное окно
+        infoPanel.add(new JScrollPane(informationText)); // РўРµРєСЃС‚РѕРІС‹Р№ СЌР»РµРјРµРЅС‚ -> РїР°РЅРµР»СЊ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅР°СЏ РїР°РЅРµР»СЊ
+        infoWindow.add(infoPanel);                       // РРЅС„РѕСЂРјР°С†РёРѕРЅРЅР°СЏ РїР°РЅРµР»СЊ -> РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРµ РѕРєРЅРѕ
 
-        // Отобразить приложение
+        // РћС‚РѕР±СЂР°Р·РёС‚СЊ РїСЂРёР»РѕР¶РµРЅРёРµ
         // ---------------------
         mainFrame.setVisible(true);
     }
 
-    // Работа с образом в виде изображения
+    // Р Р°Р±РѕС‚Р° СЃ РѕР±СЂР°Р·РѕРј РІ РІРёРґРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
     public static BufferedImage preprocImg(String imgName) throws IOException {
         File file = new File(imgName);
         Integer[][] img = Processing.readAndConvertImageToArray(file);
         if(img.length != 0) {
-            Config.recordInformation("Изображение: " + imgName);
-            Config.recordInformation("Размер изображения: " + img[0].length + "x" + img.length + "\n");
+            Config.recordInformation("РР·РѕР±СЂР°Р¶РµРЅРёРµ: " + imgName);
+            Config.recordInformation("Р Р°Р·РјРµСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ: " + img[0].length + "x" + img.length + "\n");
             //img = Processing.translation(img); // -
             //img = Processing.scaling(img);     // -
             if(Config.scaling)
@@ -413,7 +413,7 @@ public class ProcessingApplication {
         return new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
     }
 
-    // Работа с образом в виде двумерного массива
+    // Р Р°Р±РѕС‚Р° СЃ РѕР±СЂР°Р·РѕРј РІ РІРёРґРµ РґРІСѓРјРµСЂРЅРѕРіРѕ РјР°СЃСЃРёРІР°
     public static void preprocImg(Integer[][] imgName) {
         Processing.printImg(imgName);
         //imgName = Processing.scalingNew(imgName);
