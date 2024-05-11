@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>Tiseior</groupId>
-    <artifactId>PreprocessorApp</artifactId>
+    <artifactId>PreprocessorApplication</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0.0</version>
+    <version>1.5.0.0</version>
     <name>PreprocessorApp</name>
 
     <properties>
@@ -15,7 +15,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <product.company>Tiseior</product.company>
-        <product.title>PreprocessorApp</product.title>
+        <product.title>Preprocessor Application</product.title>
         <exeFileName>PreprocessorApp</exeFileName>
     </properties>
 

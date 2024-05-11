@@ -53,6 +53,8 @@ public class ProcessingApplication {
         JButton openSettingsMenu = new JButton("Настройки");
         // Создание кнопки вызова информационного окна в поле меню
         JButton openInfoWindow = new JButton("Информационное окно");
+        // Создание кнопки о вызове руководства
+        JButton openFileAbout = new JButton("О программе");
         // Создание области для открытого изображения
         final JLabel openImg = new JLabel(new ImageIcon());
         // Создание области для результирующего изображения
@@ -73,10 +75,10 @@ public class ProcessingApplication {
 
         // Элементы окна настроек
         // ----------------------
-        // Создание чекбокса для трансляции
-        JCheckBoxMenuItem translation = new JCheckBoxMenuItem("Трансляция");
         // Создание чекбокса для масштабирования
         JCheckBoxMenuItem scaling = new JCheckBoxMenuItem("Масштабирование");
+        // Создание чекбокса для трансляции
+        JCheckBoxMenuItem translation = new JCheckBoxMenuItem("Трансляция");
         // Создание чекбокса для ротации
         JCheckBoxMenuItem rotation = new JCheckBoxMenuItem("Ротация");
         // Создание группы для выбора способа ротации
@@ -131,6 +133,12 @@ public class ProcessingApplication {
         openInfoWindow.setOpaque(false);
         openInfoWindow.setContentAreaFilled(false);
         openInfoWindow.setBorderPainted(false);
+        // Настройка кнопки вызова руководства
+        openFileAbout.setFocusPainted(false);
+        openFileAbout.setOpaque(false);
+        openFileAbout.setContentAreaFilled(false);
+        openFileAbout.setBorderPainted(false);
+        // Создание фильтров для поиска файлов
         FileNameExtensionFilter filterJPG = new FileNameExtensionFilter("JPG(*.jpg)", "jpg");
         fileChooser.setFileFilter(filterJPG);
         FileNameExtensionFilter filterPNG = new FileNameExtensionFilter("PNG(*.png)", "png");
@@ -141,8 +149,8 @@ public class ProcessingApplication {
         settingsWindow.setSize(260, 200); // Размер окна
         settingsWindow.setLocationRelativeTo(null);   // Расположение
         settingsWindow.setResizable(false);           // Возможность изменять размер
-        translation.setState(Config.translation);     // Значение чекбокса трансляции
         scaling.setState(Config.scaling);             // Значение чекбокса масштабирования
+        translation.setState(Config.translation);     // Значение чекбокса трансляции
         rotation.setState(Config.rotation);           // Значение чекбокса ротации
         // Значения в области выбора способа поворота
         if(Config.rotation) {
@@ -260,6 +268,22 @@ public class ProcessingApplication {
                 infoWindow.setVisible(true);
             }
         });
+        // Взаимодействие с кнопкой вызова руководства
+        openFileAbout.addActionListener(clickAbout -> {
+            File file = new File(Config.fileAbout);
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                if(file.exists())
+                    desktop.open(file);
+                else
+                    // Ошибка, если нет файла руководства
+                    JOptionPane.showMessageDialog(mainFrame,
+                            "Файл " + Config.fileAbout + " не найден",
+                            "404", JOptionPane.ERROR_MESSAGE);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         // Взаимодействия с окном настроек
         // -------------------------------
@@ -282,8 +306,8 @@ public class ProcessingApplication {
         });
         // Взаимодействие с кнопкой настроек по умолчанию
         defaultSettings.addActionListener(clickDefault -> {
-            translation.setState(true);
             scaling.setState(true);
+            translation.setState(true);
             rotation.setState(true);
             auto.setEnabled(true);
             auto.doClick();
@@ -293,8 +317,8 @@ public class ProcessingApplication {
         });
         // Взаимодействие с кнопкой применения настроек
         saveSettings.addActionListener(clickSave -> {
-            Config.translation = translation.getState();
             Config.scaling = scaling.getState();
+            Config.translation = translation.getState();
             Config.rotation = rotation.getState();
             Config.rotAuto = auto.isSelected();
             if(!Config.rotAuto)
@@ -354,6 +378,8 @@ public class ProcessingApplication {
         mainPanel.add(processing, constraintsMainPanel); // Кнопка преобразования -> основная панель
         menuBar.add(openSettingsMenu);                   // Кнопка вызова меню -> область меню
         menuBar.add(openInfoWindow);                     // Кнопка вызова информации -> область меню
+        menuBar.add(Box.createHorizontalGlue());         // Добавление сдвига в область меню
+        menuBar.add(openFileAbout);                      // Кнопка вызова руководства -> область меню
         mainFrame.setJMenuBar(menuBar);                  // Область меню -> главное окно
         mainFrame.add(mainPanel);                        // Основная панель -> главное окно
 
@@ -362,9 +388,9 @@ public class ProcessingApplication {
         constraintsSettings.fill      = GridBagConstraints.HORIZONTAL;
         constraintsSettings.gridy     = 0;
         constraintsSettings.gridwidth = 3;
-        settingsPanel.add(translation, constraintsSettings); // Чекбокс трансляции -> панель настроек
-        constraintsSettings.gridy = 1;
         settingsPanel.add(scaling, constraintsSettings);     // Чекбокс масштабирования -> панель настроек
+        constraintsSettings.gridy = 1;
+        settingsPanel.add(translation, constraintsSettings); // Чекбокс трансляции -> панель настроек
         constraintsSettings.gridy = 2;
         settingsPanel.add(rotation, constraintsSettings); // Чекбокс ротации -> панель настроек
         choicePanel.add(auto);                            // Радиокнопка авто -> панель выбора
@@ -397,17 +423,12 @@ public class ProcessingApplication {
         if(img.length != 0) {
             Config.recordInformation("Изображение: " + imgName);
             Config.recordInformation("Размер изображения: " + img[0].length + "x" + img.length + "\n");
-            //img = Processing.translation(img); // -
-            //img = Processing.scaling(img);     // -
             if(Config.scaling)
-                img = Processing.scalingNew(img);
+                img = Processing.scaling(img);
             if(Config.translation)
                 img = Processing.translation(img);
-            //img = Processing.fillGaps(img);    // -
-            //img = Processing.rotation(img);  // -
-            //img = Processing.rot(img, -36.645649164620316);
             if(Config.rotation)
-                img = Processing.rotationNew(img);
+                img = Processing.rotation(img);
             return Processing.convertArrayToImageAndWrite(img);
         }
         return new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
@@ -416,15 +437,11 @@ public class ProcessingApplication {
     // Работа с образом в виде двумерного массива
     public static void preprocImg(Integer[][] imgName) {
         Processing.printImg(imgName);
-        //imgName = Processing.scalingNew(imgName);
-        //imgName = Processing.translation(imgName);
-        //imgName = Processing.fillGaps(imgName);
+        imgName = Processing.scaling(imgName);
         //Processing.printImg(imgName);
-        Processing.takeAngle(imgName);
-        //imgName = Processing.rot(imgName, 45.0);
+        imgName = Processing.translation(imgName);
         //Processing.printImg(imgName);
-        //imgName = Processing.rotation(imgName);
-        //Processing.rot(imgName, 90.0);
+        imgName = Processing.rotation(imgName);
         //Processing.printImg(imgName);
     }
 }

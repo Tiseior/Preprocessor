@@ -1,11 +1,13 @@
 public class Config {
 
     // Путь к изображениям
-    public static String path = "src\\main\\Images\\";
-    // Настройка трансляции (центрирования)
-    public static Boolean translation = true;
+    public static String path = "Images\\";
+    // Файл руководства
+    public static String fileAbout = "AboutPreprocessorApplication.pdf";
     // Настройка масштабирования
     public static Boolean scaling     = true;
+    // Настройка трансляции (центрирования)
+    public static Boolean translation = true;
     // Настройка ротации (поворота)
     public static Boolean rotation    = true;
     // Настройка автоповорота
