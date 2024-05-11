@@ -238,14 +238,6 @@ public class Processing {
 
             // Получаем возможные углы для поворота
             Double[] angles = takeAngle(img);
-            Config.recordInformation("Левый нижний угол: " +
-                            (Math.round(angles[0] * 10000.0) / 10000.0));
-            Config.recordInformation("Левый верхний угол: " +
-                    (Math.round(angles[1] * 10000.0) / 10000.0));
-            Config.recordInformation("Правый верхний угол: " +
-                    (Math.round(angles[2] * 10000.0) / 10000.0));
-            Config.recordInformation("Правый нижний угол: " +
-                    (Math.round(angles[3] * 10000.0) / 10000.0));
             double bestAngle = 0.0;
             System.out.println("Всего углов: " + angles.length);
             // Вычисляем изначальные координаты образа и размер области
@@ -353,7 +345,14 @@ public class Processing {
         System.out.println("Angle Left Top: " + angles[1]);
         System.out.println("Angle Right Top: " + angles[2]);
         System.out.println("Angle Right Bottom: " + angles[3]);
-        System.out.println("Sign = " + sign);
+        Config.recordInformation("Левый нижний угол: " +
+                (Math.round(angles[0] * 10000.0) / 10000.0));
+        Config.recordInformation("Левый верхний угол: " +
+                (Math.round(angles[1] * 10000.0) / 10000.0));
+        Config.recordInformation("Правый верхний угол: " +
+                (Math.round(angles[2] * 10000.0) / 10000.0));
+        Config.recordInformation("Правый нижний угол: " +
+                (Math.round(angles[3] * 10000.0) / 10000.0));
         Arrays.sort(angles);
 
         return angles;
